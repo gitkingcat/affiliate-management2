@@ -136,7 +136,7 @@ public class CommissionService {
         validateDateRange(startDate, endDate);
 
         Page<Commission> commissionsPage = commissionRepository
-                .findByCreatedAtBetween(startDate, endDate, pageable);
+                .findByCreatedAtBetween(startDate, endDate);
 
         return commissionsPage.map(commissionMapper::toDto);
     }
