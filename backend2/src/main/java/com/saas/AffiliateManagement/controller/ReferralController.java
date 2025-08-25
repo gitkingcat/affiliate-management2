@@ -145,8 +145,7 @@ public class ReferralController {
             @RequestParam Optional<String> referralCode,
             Pageable pageable) {
 
-        Page<ReferralDto> searchResults = referralService
-                .searchReferrals(status, affiliateId, referralCode, pageable);
+        Page<ReferralDto> searchResults = referralService.searchReferrals(status, affiliateId, referralCode, pageable);
 
         return ResponseEntity.ok(searchResults);
     }
