@@ -148,7 +148,7 @@ export default function LandingPage() {
                   <div className="rounded-lg border border-border bg-card shadow-2xl overflow-hidden">
                     <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-1">
                       <img
-                          src=""
+                          src="affiliate-dashboard.png"
                           alt="AffiliateFlow Dashboard Preview"
                           className="w-full h-auto rounded-md"
                       />
