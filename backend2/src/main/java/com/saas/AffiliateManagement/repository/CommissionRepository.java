@@ -24,8 +24,10 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 
     Page<Commission> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    // Add List versions for the earnings service
-    List<Commission> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    @Query(value = "SELECT * FROM commissions WHERE created_at BETWEEN :startDate AND :endDate",
+            nativeQuery = true)
+    List<Commission> findByCreatedAtBetweenAsList(@Param("startDate") LocalDateTime startDate,
+                                            @Param("endDate") LocalDateTime endDate);
 
     List<Commission> findByAffiliateIdAndCreatedAtBetween(Long affiliateId, LocalDateTime startDate, LocalDateTime endDate);
 

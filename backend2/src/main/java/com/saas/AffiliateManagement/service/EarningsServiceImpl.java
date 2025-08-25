@@ -8,7 +8,6 @@ import com.saas.AffiliateManagement.models.entity.Commission;
 import com.saas.AffiliateManagement.models.entity.Affiliate;
 import com.saas.AffiliateManagement.repository.AffiliateRepository;
 import com.saas.AffiliateManagement.repository.CommissionRepository;
-import com.saas.AffiliateManagement.repository.ReferralRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,16 +32,13 @@ import java.util.Optional;
 public class EarningsServiceImpl implements EarningsService {
 
     private final CommissionRepository commissionRepository;
-    private final ReferralRepository referralRepository;
     private final AffiliateRepository affiliateRepository;
 
     @Autowired
     public EarningsServiceImpl(
             CommissionRepository commissionRepository,
-            ReferralRepository referralRepository,
             AffiliateRepository affiliateRepository) {
         this.commissionRepository = commissionRepository;
-        this.referralRepository = referralRepository;
         this.affiliateRepository = affiliateRepository;
     }
 
@@ -67,7 +63,7 @@ public class EarningsServiceImpl implements EarningsService {
             commissions = commissionRepository.findByAffiliateClientIdAndCreatedAtBetween(
                     clientId.get(), start, end);
         } else {
-            commissions = commissionRepository.findByCreatedAtBetween(start, end);
+            commissions = commissionRepository.findByCreatedAtBetweenAsList(start, end);
         }
 
         List<EarningsDataDto> allData = buildEarningsData(commissions, period, start, end);

@@ -130,17 +130,6 @@ public class CommissionService {
         return commissionsPage.map(commissionMapper::toDto);
     }
 
-    public Page<CommissionDto> getCommissionsByDateRange(LocalDateTime startDate,
-                                                         LocalDateTime endDate,
-                                                         Pageable pageable) {
-        validateDateRange(startDate, endDate);
-
-        Page<Commission> commissionsPage = commissionRepository
-                .findByCreatedAtBetween(startDate, endDate);
-
-        return commissionsPage.map(commissionMapper::toDto);
-    }
-
     public BigDecimal calculateTotalCommissionByStatus(String status) {
         BigDecimal totalCommission = commissionRepository.calculateTotalCommissionByStatus(status);
         return totalCommission != null ? totalCommission : BigDecimal.ZERO;
