@@ -1,0 +1,17 @@
+services:
+  postgres-client:
+    image: "postgres:12"
+    container_name: "affiliate_management_db"
+    environment:
+      - POSTGRES_USER=affiliate_user
+      - POSTGRES_PASSWORD=affiliate_password
+      - POSTGRES_DB=affiliate_management
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/data/databases/affiliate-management
+
+
+volumes:
+  pgdata:
+    driver: local

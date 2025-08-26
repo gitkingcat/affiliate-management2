@@ -6,9 +6,10 @@ import { useEffect, useState } from "react"
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 interface EarningsData {
-    month: string
+    month: string // Will represent day for daily view
     desktop: number
     mobile: number
 }
@@ -19,6 +20,7 @@ interface EarningChartProps {
     endDate?: string
     title?: string
     description?: string
+    period?: 'daily' | 'weekly' | 'monthly'
 }
 
 const chartConfig = {
@@ -41,11 +43,25 @@ async function fetchEarningsData(
         const params = new URLSearchParams()
 
         if (affiliateId) params.append('affiliateId', affiliateId.toString())
+
+        // Default to last month if no dates provided
+        if (!startDate && !endDate) {
+            const now = new Date()
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
+
+            startDate = lastMonth.toISOString()
+            endDate = endOfLastMonth.toISOString()
+        }
+
         if (startDate) params.append('startDate', startDate)
         if (endDate) params.append('endDate', endDate)
+        params.append('period', 'daily') // Change to daily for last month view
+        params.append('size', '31') // Max days in a month
+        params.append('page', '0')
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/v1/referrals/trends?${params.toString()}`,
+            `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/v1/earnings/trends?${params.toString()}`,
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,12 +71,12 @@ async function fetchEarningsData(
         )
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`)
+            console.error('HTTP error!')
         }
 
         const data = await response.json()
 
-        return transformDataForChart(data)
+        return transformDataForChart(data.content || data)
     } catch (error) {
         console.error('Error fetching earnings data:', error)
         return getFallbackData()
@@ -68,37 +84,39 @@ async function fetchEarningsData(
 }
 
 function transformDataForChart(apiData: any): EarningsData[] {
-    if (!apiData || typeof apiData !== 'object') {
+    if (!apiData || (!Array.isArray(apiData) && !apiData.content)) {
         return getFallbackData()
     }
 
-    const months = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December']
+    const dataArray = Array.isArray(apiData) ? apiData : apiData.content || []
 
-    return months.map(month => ({
-        month,
-        desktop: Math.floor(Math.random() * 300) + 50,
-        mobile: Math.floor(Math.random() * 200) + 50,
+    return dataArray.map((item: any, index: number) => ({
+        month: item.period || `Day ${index + 1}`, // For daily data, show as "Day X"
+        desktop: Number(item.desktop || 0),
+        mobile: Number(item.mobile || 0),
     }))
 }
 
 function getFallbackData(): EarningsData[] {
-    return [
-        { month: "January", desktop: 186, mobile: 80 },
-        { month: "February", desktop: 305, mobile: 200 },
-        { month: "March", desktop: 237, mobile: 120 },
-        { month: "April", desktop: 73, mobile: 190 },
-        { month: "May", desktop: 209, mobile: 130 },
-        { month: "June", desktop: 214, mobile: 140 },
-    ]
+    // Generate last month's daily data (30 days)
+    const lastMonthData = []
+    for (let day = 1; day <= 30; day++) {
+        lastMonthData.push({
+            month: `Day ${day}`,
+            desktop: Math.floor(Math.random() * 100) + 20,
+            mobile: Math.floor(Math.random() * 80) + 15,
+        })
+    }
+    return lastMonthData
 }
 
 export function EarningChart({
                                  affiliateId,
                                  startDate,
                                  endDate,
-                                 title = "Earnings Overview",
-                                 description = "Monthly earnings breakdown by platform"
+                                 title = "Last Month Earnings",
+                                 description = "Daily earnings breakdown for the last month",
+                                 period = 'daily'
                              }: EarningChartProps) {
     const [chartData, setChartData] = useState<EarningsData[]>([])
     const [loading, setLoading] = useState(true)
@@ -148,15 +166,18 @@ export function EarningChart({
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>
-                    {error ? (
-                        <span className="text-destructive">{error} - Showing sample data</span>
-                    ) : (
-                        description
-                    )}
-                </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-card-foreground">Earning Statistic</CardTitle>
+                <Select defaultValue="this-month">
+                    <SelectTrigger className="w-32">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="this-month">This Month</SelectItem>
+                        <SelectItem value="last-month">Last Month</SelectItem>
+                        <SelectItem value="this-year">This Year</SelectItem>
+                    </SelectContent>
+                </Select>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig}>
@@ -170,11 +191,15 @@ export function EarningChart({
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
-                            dataKey="month"
+                            dataKey="this-month"
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
-                            tickFormatter={(value) => value.slice(0, 3)}
+                            tickFormatter={(value) => {
+                                // For daily data, show every 5th day to avoid crowding
+                                const dayNumber = parseInt(value.replace('Day ', '')) || 0
+                                return dayNumber % 5 === 0 ? value : ''
+                            }}
                         />
                         <ChartTooltip
                             cursor={false}
@@ -222,7 +247,7 @@ export function EarningChart({
                             )}
                         </div>
                         <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                            Total earnings: ${totalEarnings.toLocaleString()}
+                            Total last month: ${totalEarnings.toLocaleString()}
                         </div>
                     </div>
                 </div>
