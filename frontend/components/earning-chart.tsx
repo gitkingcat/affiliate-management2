@@ -234,7 +234,7 @@ export function EarningChart({
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center justify-center h-[300px]">
-                        <div className="text-muted-foreground">Loading earnings data...</div>
+                        <div className="text-muted-foreground">Counting your earnings...</div>
                     </div>
                 </CardContent>
             </Card>
@@ -244,7 +244,7 @@ export function EarningChart({
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-card-foreground">Earning Statistic</CardTitle>
+                <CardTitle className="text-lg font-semibold text-card-foreground">Affiliate Earning Statistic</CardTitle>
                 <Select value={selectedPeriod} onValueChange={(value: DatePeriod) => setSelectedPeriod(value)}>
                     <SelectTrigger className="w-32">
                         <SelectValue />

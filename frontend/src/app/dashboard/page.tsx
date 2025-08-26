@@ -53,30 +53,30 @@ export default function Dashboard() {
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <StatsCard
-                            title="Doctors"
+                            title="New Affiliates in last 30 days"
                             value="650"
-                            subtitle="4 Doctors joined this week"
+                            subtitle=""
                             icon={<Users className="w-6 h-6 text-blue-600" />}
                             iconBg="bg-blue-100"
                         />
                         <StatsCard
                             title="Staffs"
                             value="570"
-                            subtitle="8 Staffs on vacation"
+                            subtitle=""
                             icon={<UserCheck className="w-6 h-6 text-purple-600" />}
                             iconBg="bg-purple-100"
                         />
                         <StatsCard
                             title="Patients"
                             value="15,750"
-                            subtitle="170 New patients admitted"
+                            subtitle=""
                             icon={<Heart className="w-6 h-6 text-blue-600" />}
                             iconBg="bg-blue-100"
                         />
                         <StatsCard
                             title="Pharmacies"
                             value="$42,400"
-                            subtitle="60,000 Medicine on reserve"
+                            subtitle=""
                             icon={<DollarSign className="w-6 h-6 text-green-600" />}
                             iconBg="bg-green-100"
                         />
