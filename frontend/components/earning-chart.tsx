@@ -9,7 +9,7 @@ import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } f
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 interface EarningsData {
-    month: string // Will represent day for daily view
+    month: string
     desktop: number
     mobile: number
 }
@@ -23,6 +23,8 @@ interface EarningChartProps {
     period?: 'daily' | 'weekly' | 'monthly'
 }
 
+type DatePeriod = 'this-month' | 'last-month' | 'this-year'
+
 const chartConfig = {
     desktop: {
         label: "Desktop",
@@ -34,30 +36,50 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
+function getDateRangeForPeriod(period: DatePeriod): { startDate: string; endDate: string; chartPeriod: 'daily' | 'weekly' | 'monthly' } {
+    const now = new Date()
+
+    switch (period) {
+        case 'this-month':
+            return {
+                startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+                endDate: now.toISOString(),
+                chartPeriod: 'daily'
+            }
+
+        case 'last-month':
+            const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+            return {
+                startDate: lastMonthStart.toISOString(),
+                endDate: lastMonthEnd.toISOString(),
+                chartPeriod: 'daily'
+            }
+
+        case 'this-year':
+            return {
+                startDate: new Date(now.getFullYear(), 0, 1).toISOString(),
+                endDate: now.toISOString(),
+                chartPeriod: 'monthly'
+            }
+    }
+}
+
 async function fetchEarningsData(
     affiliateId?: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    period: 'daily' | 'weekly' | 'monthly' = 'daily'
 ): Promise<EarningsData[]> {
     try {
         const params = new URLSearchParams()
 
         if (affiliateId) params.append('affiliateId', affiliateId.toString())
-
-        // Default to last month if no dates provided
-        if (!startDate && !endDate) {
-            const now = new Date()
-            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-            const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
-
-            startDate = lastMonth.toISOString()
-            endDate = endOfLastMonth.toISOString()
-        }
-
         if (startDate) params.append('startDate', startDate)
         if (endDate) params.append('endDate', endDate)
-        params.append('period', 'daily') // Change to daily for last month view
-        params.append('size', '31') // Max days in a month
+
+        params.append('period', period)
+        params.append('size', period === 'monthly' ? '12' : '31')
         params.append('page', '0')
 
         const response = await fetch(
@@ -65,62 +87,88 @@ async function fetchEarningsData(
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
+                    // 'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
                 },
             }
         )
 
         if (!response.ok) {
-            console.error('HTTP error!')
+            console.error('HTTP error!', response.json())
         }
 
         const data = await response.json()
-
-        return transformDataForChart(data.content || data)
+        return transformDataForChart(data.content || data, period)
     } catch (error) {
         console.error('Error fetching earnings data:', error)
-        return getFallbackData()
+        return getFallbackData(period)
     }
 }
 
-function transformDataForChart(apiData: any): EarningsData[] {
+function transformDataForChart(apiData: any, period: 'daily' | 'weekly' | 'monthly'): EarningsData[] {
     if (!apiData || (!Array.isArray(apiData) && !apiData.content)) {
-        return getFallbackData()
+        return getFallbackData(period)
     }
 
     const dataArray = Array.isArray(apiData) ? apiData : apiData.content || []
 
-    return dataArray.map((item: any, index: number) => ({
-        month: item.period || `Day ${index + 1}`, // For daily data, show as "Day X"
-        desktop: Number(item.desktop || 0),
-        mobile: Number(item.mobile || 0),
-    }))
+    return dataArray.map((item: any, index: number) => {
+        let monthLabel = item.period
+
+        if (!monthLabel) {
+            if (period === 'daily') {
+                monthLabel = `Day ${index + 1}`
+            } else if (period === 'monthly') {
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                monthLabel = monthNames[index] || `Month ${index + 1}`
+            } else {
+                monthLabel = `Week ${index + 1}`
+            }
+        }
+
+        return {
+            month: monthLabel,
+            desktop: Number(item.desktop || 0),
+            mobile: Number(item.mobile || 0),
+        }
+    })
 }
 
-function getFallbackData(): EarningsData[] {
-    // Generate last month's daily data (30 days)
-    const lastMonthData = []
-    for (let day = 1; day <= 30; day++) {
-        lastMonthData.push({
-            month: `Day ${day}`,
-            desktop: Math.floor(Math.random() * 100) + 20,
-            mobile: Math.floor(Math.random() * 80) + 15,
-        })
+function getFallbackData(period: 'daily' | 'weekly' | 'monthly'): EarningsData[] {
+    if (period === 'monthly') {
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        return monthNames.map((month) => ({
+            month,
+            desktop: Math.floor(Math.random() * 5000) + 1000,
+            mobile: Math.floor(Math.random() * 3000) + 800,
+        }))
+    } else {
+        const dataLength = period === 'daily' ? 30 : 4
+        const data = []
+        for (let i = 1; i <= dataLength; i++) {
+            data.push({
+                month: period === 'daily' ? `Day ${i}` : `Week ${i}`,
+                desktop: Math.floor(Math.random() * 500) + 100,
+                mobile: Math.floor(Math.random() * 300) + 50,
+            })
+        }
+        return data
     }
-    return lastMonthData
 }
 
 export function EarningChart({
                                  affiliateId,
-                                 startDate,
-                                 endDate,
-                                 title = "Last Month Earnings",
-                                 description = "Daily earnings breakdown for the last month",
-                                 period = 'daily'
+                                 startDate: propStartDate,
+                                 endDate: propEndDate,
+                                 title = "Earning Statistic",
+                                 description,
+                                 period: propPeriod = 'daily'
                              }: EarningChartProps) {
     const [chartData, setChartData] = useState<EarningsData[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [selectedPeriod, setSelectedPeriod] = useState<DatePeriod>('this-month')
 
     useEffect(() => {
         const loadData = async () => {
@@ -128,18 +176,30 @@ export function EarningChart({
             setError(null)
 
             try {
-                const data = await fetchEarningsData(affiliateId, startDate, endDate)
+                let startDate = propStartDate
+                let endDate = propEndDate
+                let chartPeriod = propPeriod
+
+                if (!propStartDate || !propEndDate) {
+                    const dateRange = getDateRangeForPeriod(selectedPeriod)
+                    startDate = dateRange.startDate
+                    endDate = dateRange.endDate
+                    chartPeriod = dateRange.chartPeriod
+                }
+
+                const data = await fetchEarningsData(affiliateId, startDate, endDate, chartPeriod)
                 setChartData(data)
             } catch (err) {
                 setError('Failed to load earnings data')
-                setChartData(getFallbackData())
+                const dateRange = getDateRangeForPeriod(selectedPeriod)
+                setChartData(getFallbackData(dateRange.chartPeriod))
             } finally {
                 setLoading(false)
             }
         }
 
         loadData()
-    }, [affiliateId, startDate, endDate])
+    }, [affiliateId, propStartDate, propEndDate, propPeriod, selectedPeriod])
 
     const totalEarnings = chartData.reduce((sum, item) => sum + item.desktop + item.mobile, 0)
     const growthRate = chartData.length > 1
@@ -147,6 +207,23 @@ export function EarningChart({
             (chartData[0].desktop + chartData[0].mobile)) /
         (chartData[0].desktop + chartData[0].mobile)) * 100
         : 0
+
+    const getPeriodLabel = () => {
+        switch (selectedPeriod) {
+            case 'this-month': return 'this month'
+            case 'last-month': return 'last month'
+            case 'this-year': return 'this year'
+        }
+    }
+
+    const formatXAxisTick = (value: string) => {
+        if (selectedPeriod === 'this-year') {
+            return value
+        }
+
+        const dayNumber = parseInt(value.replace('Day ', '')) || 0
+        return dayNumber % 5 === 0 ? value : ''
+    }
 
     if (loading) {
         return (
@@ -168,7 +245,7 @@ export function EarningChart({
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-card-foreground">Earning Statistic</CardTitle>
-                <Select defaultValue="this-month">
+                <Select value={selectedPeriod} onValueChange={(value: DatePeriod) => setSelectedPeriod(value)}>
                     <SelectTrigger className="w-32">
                         <SelectValue />
                     </SelectTrigger>
@@ -191,15 +268,11 @@ export function EarningChart({
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
-                            dataKey="this-month"
+                            dataKey="month"
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
-                            tickFormatter={(value) => {
-                                // For daily data, show every 5th day to avoid crowding
-                                const dayNumber = parseInt(value.replace('Day ', '')) || 0
-                                return dayNumber % 5 === 0 ? value : ''
-                            }}
+                            tickFormatter={formatXAxisTick}
                         />
                         <ChartTooltip
                             cursor={false}
@@ -247,7 +320,7 @@ export function EarningChart({
                             )}
                         </div>
                         <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                            Total last month: ${totalEarnings.toLocaleString()}
+                            Total {getPeriodLabel()}: ${totalEarnings.toLocaleString()}
                         </div>
                     </div>
                 </div>

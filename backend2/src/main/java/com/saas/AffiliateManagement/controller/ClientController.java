@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,7 +73,6 @@ public class ClientController {
      * @throws InvalidClientDataException if the provided data is invalid
      */
     @PostMapping
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ClientDto> createClient(
             @Valid @RequestBody ClientCreateRequest createRequest) {
 
@@ -93,7 +91,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @GetMapping("/{clientId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<ClientDto> getClientById(
             @PathVariable @Min(1) Long clientId) {
 
@@ -109,7 +106,6 @@ public class ClientController {
      * @return ResponseEntity containing a page of client DTOs
      */
     @GetMapping
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Page<ClientDto>> getAllClients(
             Pageable pageable) {
 
@@ -127,7 +123,6 @@ public class ClientController {
      * @throws InvalidClientDataException if the provided data is invalid
      */
     @PutMapping("/{clientId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<ClientDto> updateClient(
             @PathVariable @Min(1) Long clientId,
             @Valid @RequestBody ClientUpdateRequest updateRequest) {
@@ -147,7 +142,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PatchMapping("/{clientId}/activate")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ClientDto> activateClient(
             @PathVariable @Min(1) Long clientId) {
 
@@ -166,7 +160,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PatchMapping("/{clientId}/deactivate")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ClientDto> deactivateClient(
             @PathVariable @Min(1) Long clientId) {
 
@@ -186,7 +179,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PatchMapping("/{clientId}/suspend")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ClientDto> suspendClient(
             @PathVariable @Min(1) Long clientId,
             @RequestParam String reason) {
@@ -208,7 +200,6 @@ public class ClientController {
      * @return ResponseEntity containing a page of matching client DTOs
      */
     @GetMapping("/search")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Page<ClientDto>> searchClients(
             @RequestParam Optional<String> companyName,
             @RequestParam Optional<String> status,
@@ -230,7 +221,6 @@ public class ClientController {
      * @return ResponseEntity containing a page of client DTOs
      */
     @GetMapping("/subscription/{subscriptionPlan}")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Page<ClientDto>> getClientsBySubscriptionPlan(
             @PathVariable String subscriptionPlan,
             Pageable pageable) {
@@ -249,7 +239,6 @@ public class ClientController {
      * @return ResponseEntity containing a page of active client DTOs
      */
     @GetMapping("/active")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Page<ClientDto>> getActiveClients(
             Pageable pageable) {
 
@@ -268,7 +257,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PatchMapping("/{clientId}/upgrade")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<ClientDto> upgradeSubscription(
             @PathVariable @Min(1) Long clientId,
             @RequestParam String newPlan) {
@@ -288,7 +276,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PatchMapping("/{clientId}/downgrade")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<ClientDto> downgradeSubscription(
             @PathVariable @Min(1) Long clientId,
             @RequestParam String newPlan) {
@@ -308,7 +295,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @DeleteMapping("/{clientId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> deleteClient(
             @PathVariable @Min(1) Long clientId) {
 
@@ -343,7 +329,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PostMapping("/{clientId}/generate-api-keys")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<List<String>> generateApiKeys(
             @PathVariable @Min(1) Long clientId) {
 
@@ -359,7 +344,6 @@ public class ClientController {
      * @throws ClientNotFoundException if no client exists with the given ID
      */
     @PostMapping("/{clientId}/regenerate-api-keys")
-    @PreAuthorize("hasRole('SUPER_ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<List<String>> regenerateApiKeys(
             @PathVariable @Min(1) Long clientId) {
 

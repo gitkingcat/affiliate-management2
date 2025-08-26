@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AffiliateManagementApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AffiliateManagementApplication.class, args);
+		SpringApplication app = new SpringApplication(AffiliateManagementApplication.class);
+		app.setAdditionalProfiles("dev");
+		app.run(args);
 	}
 
 }

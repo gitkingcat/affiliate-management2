@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +30,6 @@ public class AffiliateController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENT')")
     public ResponseEntity<AffiliateDto> createAffiliate(
             @Valid @RequestBody AffiliateCreateRequest createRequest) {
 
@@ -43,7 +41,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/{affiliateId}")
-    @PreAuthorize("hasRole('ADMIN') or @affiliateService.isAffiliateOwnedByClient(#affiliateId, authentication.name)")
     public ResponseEntity<AffiliateDto> getAffiliateById(
             @PathVariable @Min(1) Long affiliateId) {
 
@@ -54,7 +51,6 @@ public class AffiliateController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AffiliateDto>> getAllAffiliates(
             Pageable pageable) {
 
@@ -65,7 +61,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/client/{clientId}")
-    @PreAuthorize("hasRole('ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<Page<AffiliateDto>> getAffiliatesByClient(
             @PathVariable @Min(1) Long clientId,
             Pageable pageable) {
@@ -77,7 +72,6 @@ public class AffiliateController {
     }
 
     @PutMapping("/{affiliateId}")
-    @PreAuthorize("hasRole('ADMIN') or @affiliateService.isAffiliateOwnedByClient(#affiliateId, authentication.name)")
     public ResponseEntity<AffiliateDto> updateAffiliate(
             @PathVariable @Min(1) Long affiliateId,
             @Valid @RequestBody AffiliateUpdateRequest updateRequest) {
@@ -89,7 +83,6 @@ public class AffiliateController {
     }
 
     @DeleteMapping("/{affiliateId}")
-    @PreAuthorize("hasRole('ADMIN') or @affiliateService.isAffiliateOwnedByClient(#affiliateId, authentication.name)")
     public ResponseEntity<Void> deleteAffiliate(
             @PathVariable @Min(1) Long affiliateId) {
 
@@ -98,7 +91,6 @@ public class AffiliateController {
     }
 
     @PatchMapping("/{affiliateId}/activate")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AffiliateDto> activateAffiliate(
             @PathVariable @Min(1) Long affiliateId) {
 
@@ -109,7 +101,6 @@ public class AffiliateController {
     }
 
     @PatchMapping("/{affiliateId}/deactivate")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AffiliateDto> deactivateAffiliate(
             @PathVariable @Min(1) Long affiliateId) {
 
@@ -120,7 +111,6 @@ public class AffiliateController {
     }
 
     @PatchMapping("/{affiliateId}/approve")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AffiliateDto> approveAffiliate(
             @PathVariable @Min(1) Long affiliateId) {
 
@@ -131,7 +121,6 @@ public class AffiliateController {
     }
 
     @PatchMapping("/{affiliateId}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AffiliateDto> rejectAffiliate(
             @PathVariable @Min(1) Long affiliateId,
             @RequestParam String reason) {
@@ -143,7 +132,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AffiliateDto>> searchAffiliates(
             @RequestParam Optional<String> email,
             @RequestParam Optional<String> status,
@@ -158,7 +146,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/client/{clientId}/search")
-    @PreAuthorize("hasRole('ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<Page<AffiliateDto>> searchClientAffiliates(
             @PathVariable @Min(1) Long clientId,
             @RequestParam Optional<String> email,
@@ -173,7 +160,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/pending-approval")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AffiliateDto>> getPendingApprovalAffiliates(
             Pageable pageable) {
 
@@ -184,7 +170,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/active")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AffiliateDto>> getActiveAffiliates(
             Pageable pageable) {
 
@@ -195,7 +180,6 @@ public class AffiliateController {
     }
 
     @GetMapping("/client/{clientId}/active")
-    @PreAuthorize("hasRole('ADMIN') or @clientService.isClientOwner(#clientId, authentication.name)")
     public ResponseEntity<Page<AffiliateDto>> getActiveAffiliatesByClient(
             @PathVariable @Min(1) Long clientId,
             Pageable pageable) {
@@ -207,7 +191,6 @@ public class AffiliateController {
     }
 
     @PostMapping("/{affiliateId}/generate-referral-code")
-    @PreAuthorize("hasRole('ADMIN') or @affiliateService.isAffiliateOwnedByClient(#affiliateId, authentication.name)")
     public ResponseEntity<String> generateReferralCode(
             @PathVariable @Min(1) Long affiliateId) {
 
@@ -218,7 +201,6 @@ public class AffiliateController {
     }
 
     @PostMapping("/{affiliateId}/regenerate-referral-code")
-    @PreAuthorize("hasRole('ADMIN') or @affiliateService.isAffiliateOwnedByClient(#affiliateId, authentication.name)")
     public ResponseEntity<String> regenerateReferralCode(
             @PathVariable @Min(1) Long affiliateId) {
 
