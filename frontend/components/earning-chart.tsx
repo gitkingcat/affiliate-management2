@@ -83,7 +83,7 @@ async function fetchEarningsData(
         params.append('page', '0')
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/v1/earnings/trends?${params.toString()}`,
+            `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/v1/statistics/trends?${params.toString()}`,
             {
                 headers: {
                     'Content-Type': 'application/json',

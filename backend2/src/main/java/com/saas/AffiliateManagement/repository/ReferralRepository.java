@@ -66,4 +66,24 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
     Page<Referral> findPendingConversions(@Param("affiliateId") Long affiliateId,
                                           @Param("cutoffDate") LocalDateTime cutoffDate,
                                           Pageable pageable);
+
+    @Query("SELECT COUNT(r) FROM Referral r WHERE r.affiliate.client.id = :clientId " +
+            "AND r.createdAt BETWEEN :startDate AND :endDate")
+    Long countByAffiliateClientIdAndCreatedAtBetween(@Param("clientId") Long clientId,
+                                                     @Param("startDate") LocalDateTime startDate,
+                                                     @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COUNT(r) FROM Referral r WHERE r.affiliate.client.id = :clientId " +
+            "AND r.status = :status AND r.createdAt BETWEEN :startDate AND :endDate")
+    Long countByAffiliateClientIdAndStatusAndCreatedAtBetween(@Param("clientId") Long clientId,
+                                                              @Param("status") String status,
+                                                              @Param("startDate") LocalDateTime startDate,
+                                                              @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(r.conversionValue), 0) FROM Referral r " +
+            "WHERE r.affiliate.client.id = :clientId AND r.status = 'CONVERTED' " +
+            "AND r.createdAt BETWEEN :startDate AND :endDate")
+    BigDecimal calculateTotalRevenueByClientIdAndDateRange(@Param("clientId") Long clientId,
+                                                           @Param("startDate") LocalDateTime startDate,
+                                                           @Param("endDate") LocalDateTime endDate);
 }

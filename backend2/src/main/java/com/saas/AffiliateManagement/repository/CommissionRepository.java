@@ -27,7 +27,7 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
     @Query(value = "SELECT * FROM commissions WHERE created_at BETWEEN :startDate AND :endDate",
             nativeQuery = true)
     List<Commission> findByCreatedAtBetweenAsList(@Param("startDate") LocalDateTime startDate,
-                                            @Param("endDate") LocalDateTime endDate);
+                                                  @Param("endDate") LocalDateTime endDate);
 
     List<Commission> findByAffiliateIdAndCreatedAtBetween(Long affiliateId, LocalDateTime startDate, LocalDateTime endDate);
 
@@ -44,4 +44,12 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
 
     @Query("SELECT COALESCE(SUM(c.amount), 0) FROM Commission c WHERE c.status = :status")
     BigDecimal calculateTotalCommissionByStatus(@Param("status") String status);
+
+    @Query("SELECT COALESCE(SUM(c.amount), 0) FROM Commission c WHERE c.affiliate.client.id = :clientId " +
+            "AND c.createdAt BETWEEN :startDate AND :endDate")
+    BigDecimal calculateTotalCommissionByClientIdAndDateRange(@Param("clientId") Long clientId,
+                                                              @Param("startDate") LocalDateTime startDate,
+                                                              @Param("endDate") LocalDateTime endDate);
+
+
 }

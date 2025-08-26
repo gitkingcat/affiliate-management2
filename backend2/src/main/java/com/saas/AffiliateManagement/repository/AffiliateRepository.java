@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -33,6 +34,14 @@ public interface AffiliateRepository extends JpaRepository<Affiliate, Long> {
 
     long countByClientId(Long clientId);
 
+    long countByClientIdAndStatus(Long clientId, String status);
+
+    @Query("SELECT COUNT(a) FROM Affiliate a WHERE a.client.id = :clientId " +
+            "AND a.createdAt BETWEEN :startDate AND :endDate")
+    long countByClientIdAndCreatedAtBetween(@Param("clientId") Long clientId,
+                                            @Param("startDate") LocalDateTime startDate,
+                                            @Param("endDate") LocalDateTime endDate);
+
     @Query("SELECT a FROM Affiliate a WHERE " +
             "(:email = '' OR LOWER(a.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
             "(:status = '' OR LOWER(a.status) LIKE LOWER(CONCAT('%', :status, '%'))) AND " +
@@ -53,4 +62,6 @@ public interface AffiliateRepository extends JpaRepository<Affiliate, Long> {
                                            @Param("status") String status,
                                            @Param("companyName") String companyName,
                                            Pageable pageable);
+
+
 }

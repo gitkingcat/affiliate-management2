@@ -50,16 +50,6 @@ public class AffiliateController {
         return ResponseEntity.ok(affiliate);
     }
 
-    @GetMapping
-    public ResponseEntity<Page<AffiliateDto>> getAllAffiliates(
-            Pageable pageable) {
-
-        Page<AffiliateDto> affiliates = affiliateService
-                .getAllAffiliates(pageable);
-
-        return ResponseEntity.ok(affiliates);
-    }
-
     @GetMapping("/client/{clientId}")
     public ResponseEntity<Page<AffiliateDto>> getAffiliatesByClient(
             @PathVariable @Min(1) Long clientId,
