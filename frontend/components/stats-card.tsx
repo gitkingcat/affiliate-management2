@@ -1,31 +1,75 @@
-import type React from "react"
-import { Card, CardContent } from "./ui/card"
-import { cn } from "@/lib/utils"
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface StatsCardProps {
-    title: string
-    value: string
-    subtitle: string
-    icon: React.ReactNode
-    iconBg: string
-    className?: string
+    title: string;
+    value: string | number;
+    subtitle?: string;
+    icon: React.ReactNode;
+    iconBg: string;
+    loading?: boolean;
+    trend?: {
+        value: number;
+        isPositive: boolean;
+    };
+    className?: string;
 }
 
-export function StatsCard({ title, value, subtitle, icon, iconBg, className }: StatsCardProps) {
+export const StatsCard: React.FC<StatsCardProps> = ({
+                                                        title,
+                                                        value,
+                                                        subtitle,
+                                                        icon,
+                                                        iconBg,
+                                                        loading = false,
+                                                        trend,
+                                                        className
+                                                    }) => {
     return (
-        <Card className={cn("bg-card border-border", className)}>
-            <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                        <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", iconBg)}>{icon}</div>
-                        <div>
-                            <p className="text-2xl font-bold text-card-foreground">{value}</p>
-                            <p className="text-sm font-medium text-card-foreground">{title}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-                        </div>
+        <Card className={cn("hover:shadow-md transition-shadow", className)}>
+            <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-muted-foreground">
+                            {title}
+                        </p>
+
+                        {loading ? (
+                            <Skeleton className="h-7 w-24 mt-1" />
+                        ) : (
+                            <>
+                                <p className="text-xl font-bold text-foreground mt-1">
+                                    {value}
+                                </p>
+
+                                {trend && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                        <span className={cn(
+                                            "text-sm font-medium",
+                                            trend.isPositive ? "text-green-600" : "text-red-600"
+                                        )}>
+                                            {trend.isPositive ? "↑" : "↓"} {Math.abs(trend.value)}%
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">vs last period</span>
+                                    </div>
+                                )}
+
+                                {subtitle && (
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        {subtitle}
+                                    </p>
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                    <div className={cn("p-2.5 rounded-lg", iconBg)}>
+                        {icon}
                     </div>
                 </div>
             </CardContent>
         </Card>
-    )
-}
+    );
+};

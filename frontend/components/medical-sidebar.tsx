@@ -22,26 +22,20 @@ import {
     FolderKanban,
     Phone,
     Menu,
-    X,
+    X, Home, Handshake, DollarSign, Settings2, MailIcon, Box, Settings,
 } from "lucide-react"
+import {ZodEmail} from "zod/v4";
 
 const navigationItems = [
-    { icon: Brain, label: "AI", href: "#" },
-    { icon: Users, label: "CRM", href: "#" },
-    { icon: ShoppingCart, label: "eCommerce", href: "#" },
-    { icon: Bitcoin, label: "Cryptocurrency", href: "#" },
-    { icon: TrendingUp, label: "Investment", href: "#" },
-    { icon: GraduationCap, label: "LMS", href: "#" },
-    { icon: Gamepad2, label: "NFT & Gaming", href: "#" },
-    { icon: Stethoscope, label: "Medical", href: "#", active: true },
-    { icon: BarChart3, label: "Analytics", href: "#" },
-    { icon: Package, label: "POS & Inventory", href: "#" },
-    { icon: CreditCard, label: "Finance & Banking", href: "#" },
-    { icon: Calendar, label: "Booking System", href: "#" },
-    { icon: HelpCircle, label: "Help Desk", href: "#" },
-    { icon: Mic, label: "Podcast", href: "#" },
-    { icon: FolderKanban, label: "Project Management", href: "#" },
-    { icon: Phone, label: "Call Center", href: "#" },
+    { icon: Home, label: "Dashboard", href: "/dashboard" },
+    { icon: Handshake, label: "Partners", href: "#" },
+    { icon: ShoppingCart, label: "Customers", href: "#" },
+    { icon: DollarSign, label: "Payouts", href: "#" },
+    { icon: Settings2, label: "Program Settings", href: "#" },
+    { icon: MailIcon, label: "Emails", href: "#" },
+    { icon: Box, label: "Resources", href: "#" },
+    { icon: Stethoscope, label: "Reports", href: "#", active: true },
+    { icon: Settings, label: "Settings", href: "#" }
 ]
 
 interface MedicalSidebarProps {

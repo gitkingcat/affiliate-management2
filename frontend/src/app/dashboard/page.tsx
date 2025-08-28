@@ -1,15 +1,94 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { MedicalSidebar } from "@/components/medical-sidebar"
 import { StatsCard } from "@/components/stats-card"
 import { EarningChart } from "@/components/earning-chart"
-import { IncomeChart } from "@/components/income-chart"
-import { TreatmentsSection } from "@/components/treatments-section"
+import { TopAffiliates } from "@/components/top-affiliates"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, UserCheck, Heart, DollarSign, Search, Bell, Mail } from "lucide-react"
+import { Users, UserCheck, Heart, DollarSign, Search, Bell, Mail, TrendingUp, Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {NewClients} from "@/components/new-clients";
+
+interface DashboardStatistics {
+    newAffiliatesCount: number;
+    totalAffiliatesCount: number;
+    activeAffiliatesCount: number;
+    pendingAffiliatesCount: number;
+    totalClicks: number;
+    totalConversions: number;
+    totalRevenue: number;
+    totalCommissions: number;
+    periodDays: number;
+    startDate: string;
+    endDate: string;
+}
 
 export default function Dashboard() {
+    const [statistics, setStatistics] = useState<DashboardStatistics | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedPeriod, setSelectedPeriod] = useState(30);
+
+    // TODO: Get clientId from auth context or user session
+    const clientId = 1;
+
+    useEffect(() => {
+        fetchDashboardStatistics();
+    }, [selectedPeriod]);
+
+    const fetchDashboardStatistics = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await fetch(
+                `http://localhost:8080/api/v1/statistics/dashboard/client/${clientId}?days=${selectedPeriod}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch statistics: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            setStatistics(data);
+        } catch (err) {
+            console.error('Error fetching dashboard statistics:', err);
+            setError(err instanceof Error ? err.message : 'Failed to load statistics');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatNumber = (num: number | undefined): string => {
+        if (num === undefined || num === null) return '0';
+        return new Intl.NumberFormat('en-US').format(num);
+    };
+
+    const formatCurrency = (amount: number | undefined): string => {
+        if (amount === undefined || amount === null) return '$0';
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    const calculateConversionRate = (): string => {
+        if (!statistics || statistics.totalClicks === 0) return '0%';
+        const rate = (statistics.totalConversions / statistics.totalClicks) * 100;
+        return `${rate.toFixed(1)}%`;
+    };
+
     return (
         <div className="flex min-h-screen bg-background">
             <MedicalSidebar />
@@ -20,6 +99,22 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Period:</span>
+                                <Select
+                                    value={selectedPeriod.toString()}
+                                    onValueChange={(value) => setSelectedPeriod(parseInt(value))}
+                                >
+                                    <SelectTrigger className="w-32">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="7">Last 7 days</SelectItem>
+                                        <SelectItem value="30">Last 30 days</SelectItem>
+                                        <SelectItem value="90">Last 90 days</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="relative">
@@ -32,143 +127,107 @@ export default function Dashboard() {
                             <Button variant="ghost" size="sm">
                                 <Mail className="w-4 h-4" />
                             </Button>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">Dashboard - Medical</span>
-                                <Select defaultValue="this-month">
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="this-month">This Month</SelectItem>
-                                        <SelectItem value="last-month">Last Month</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </div>
                     </div>
                 </header>
 
                 {/* Main Content */}
                 <main className="flex-1 p-6 space-y-6">
+                    {/* Error Message */}
+                    {error && (
+                        <Card className="border-red-200 bg-red-50">
+                            <CardContent className="p-4">
+                                <p className="text-red-600">Error: {error}</p>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={fetchDashboardStatistics}
+                                    className="mt-2"
+                                >
+                                    Retry
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <StatsCard
-                            title="New Affiliates in last 30 days"
-                            value="650"
+                            title={`New Affiliates in last ${selectedPeriod} days`}
+                            value={loading ? "..." : formatNumber(statistics?.newAffiliatesCount)}
                             subtitle=""
                             icon={<Users className="w-6 h-6 text-blue-600" />}
                             iconBg="bg-blue-100"
                         />
                         <StatsCard
-                            title="Staffs"
-                            value="570"
-                            subtitle=""
+                            title="Active Affiliates"
+                            value={loading ? "..." : formatNumber(statistics?.activeAffiliatesCount)}
+                            subtitle={loading ? "" : `of ${formatNumber(statistics?.totalAffiliatesCount)} total`}
                             icon={<UserCheck className="w-6 h-6 text-purple-600" />}
                             iconBg="bg-purple-100"
                         />
                         <StatsCard
-                            title="Patients"
-                            value="15,750"
-                            subtitle=""
-                            icon={<Heart className="w-6 h-6 text-blue-600" />}
-                            iconBg="bg-blue-100"
+                            title="Total Conversions"
+                            value={loading ? "..." : formatNumber(statistics?.totalConversions)}
+                            subtitle={loading ? "" : `${calculateConversionRate()} conversion rate`}
+                            icon={<TrendingUp className="w-6 h-6 text-green-600" />}
+                            iconBg="bg-green-100"
                         />
                         <StatsCard
-                            title="Pharmacies"
-                            value="$42,400"
-                            subtitle=""
+                            title="Revenue"
+                            value={loading ? "..." : formatCurrency(statistics?.totalRevenue)}
+                            subtitle={`Last ${selectedPeriod} days`}
                             icon={<DollarSign className="w-6 h-6 text-green-600" />}
                             iconBg="bg-green-100"
                         />
                     </div>
 
-                    {/* Charts Row */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
-                            <EarningChart />
+                    {/* Additional Stats Row */}
+                    {statistics && !loading && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <StatsCard
+                                title="Pending Affiliates"
+                                value={formatNumber(statistics.pendingAffiliatesCount)}
+                                subtitle="Awaiting approval"
+                                icon={<Activity className="w-6 h-6 text-yellow-600" />}
+                                iconBg="bg-yellow-100"
+                            />
+                            <StatsCard
+                                title="Total Clicks"
+                                value={formatNumber(statistics.totalClicks)}
+                                subtitle={`Last ${selectedPeriod} days`}
+                                icon={<Activity className="w-6 h-6 text-indigo-600" />}
+                                iconBg="bg-indigo-100"
+                            />
+                            <StatsCard
+                                title="Commissions"
+                                value={formatCurrency(statistics.totalCommissions)}
+                                subtitle="Total earned"
+                                icon={<DollarSign className="w-6 h-6 text-pink-600" />}
+                                iconBg="bg-pink-100"
+                            />
+                            <StatsCard
+                                title="Avg Order Value"
+                                value={statistics.totalConversions > 0
+                                    ? formatCurrency(statistics.totalRevenue / statistics.totalConversions)
+                                    : "$0"}
+                                subtitle="Per conversion"
+                                icon={<DollarSign className="w-6 h-6 text-teal-600" />}
+                                iconBg="bg-teal-100"
+                            />
                         </div>
-                        <div className="space-y-6">
-                            <IncomeChart />
-                            <TreatmentsSection />
-                        </div>
-                    </div>
+                    )}
 
-                    {/* Bottom Row */}
+                    {/* Charts Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <Card className="bg-card border-border">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-semibold text-card-foreground">
-                                    Patient Visited by Department
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Cardiology</span>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-24 h-2 bg-muted rounded-full">
-                                                <div className="w-3/4 h-full bg-chart-1 rounded-full"></div>
-                                            </div>
-                                            <span className="text-sm font-medium">75%</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Neurology</span>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-24 h-2 bg-muted rounded-full">
-                                                <div className="w-1/2 h-full bg-chart-2 rounded-full"></div>
-                                            </div>
-                                            <span className="text-sm font-medium">50%</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Orthopedic</span>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-24 h-2 bg-muted rounded-full">
-                                                <div className="w-2/3 h-full bg-chart-3 rounded-full"></div>
-                                            </div>
-                                            <span className="text-sm font-medium">65%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="bg-card border-border">
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="text-lg font-semibold text-card-foreground">Patient Visit By Gender</CardTitle>
-                                <Select defaultValue="this-month">
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="this-month">This Month</SelectItem>
-                                        <SelectItem value="last-month">Last Month</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3 h-3 rounded-full bg-chart-1"></div>
-                                            <span className="font-medium text-card-foreground">Male</span>
-                                        </div>
-                                        <span className="text-lg font-bold text-card-foreground">320</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-3 h-3 rounded-full bg-chart-2"></div>
-                                            <span className="font-medium text-card-foreground">Female</span>
-                                        </div>
-                                        <span className="text-lg font-bold text-card-foreground">450</span>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <EarningChart />
+                        <TopAffiliates />
                     </div>
+
+                    {/* New Clients Section */}
+                    <NewClients />
                 </main>
             </div>
         </div>
-    )
+    );
 }

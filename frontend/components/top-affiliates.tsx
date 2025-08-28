@@ -19,11 +19,11 @@ const treatments = [
     },
 ]
 
-export function TreatmentsSection() {
+export function TopAffiliates() {
     return (
         <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-card-foreground">Available Treatments</CardTitle>
+                <CardTitle className="text-lg font-semibold text-card-foreground">Top-10 Affiliates</CardTitle>
                 <Button variant="link" className="text-primary hover:text-primary/80 p-0">
                     View All →
                 </Button>
