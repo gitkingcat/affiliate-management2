@@ -2,17 +2,25 @@ package com.saas.AffiliateManagement.service;
 
 import com.saas.AffiliateManagement.models.dto.DashboardStatisticsDto;
 import com.saas.AffiliateManagement.models.dto.PeriodStatisticsDto;
+import com.saas.AffiliateManagement.models.dto.TopAffiliateDto;
+import com.saas.AffiliateManagement.models.entity.Affiliate;
 import com.saas.AffiliateManagement.repository.AffiliateRepository;
 import com.saas.AffiliateManagement.repository.CommissionRepository;
 import com.saas.AffiliateManagement.repository.ReferralRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -121,6 +129,65 @@ public class StatisticsServiceImpl implements StatisticsService {
     public Long getPendingAffiliatesCount(Long clientId) {
         return affiliateRepository
                 .countByClientIdAndStatus(clientId, "PENDING");
+    }
+
+    @Override
+    public List<TopAffiliateDto> getTopAffiliatesForClient(Long clientId,
+                                                           Integer limit,
+                                                           Optional<LocalDateTime> startDate,
+                                                           Optional<LocalDateTime> endDate) {
+
+        LocalDateTime start = startDate.orElse(LocalDateTime.now().minusMonths(6));
+        LocalDateTime end = endDate.orElse(LocalDateTime.now());
+
+        Pageable pageable = PageRequest.of(0, limit);
+
+        List<Affiliate> affiliates = affiliateRepository.findByClientId(clientId);
+
+        return affiliates.stream()
+                .map(affiliate -> buildTopAffiliateDto(affiliate, start, end))
+                .sorted((a, b) -> b.getTotalRevenue().compareTo(a.getTotalRevenue()))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    private TopAffiliateDto buildTopAffiliateDto(Affiliate affiliate,
+                                                 LocalDateTime startDate,
+                                                 LocalDateTime endDate) {
+
+        BigDecimal totalCommissions = commissionRepository
+                .calculateTotalCommissionByAffiliateId(affiliate.getId(), startDate, endDate)
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal totalRevenue = referralRepository
+                .calculateTotalRevenue(affiliate.getId(), startDate, endDate)
+                .orElse(BigDecimal.ZERO);
+
+        Long totalReferrals = referralRepository
+                .countByAffiliateIdAndCreatedAtBetween(affiliate.getId(), startDate, endDate);
+
+        Long totalConversions = referralRepository
+                .countByAffiliateIdAndStatusAndCreatedAtBetween(
+                        affiliate.getId(), "CONVERTED", startDate, endDate);
+
+        BigDecimal conversionRate = totalReferrals > 0
+                ? BigDecimal.valueOf(totalConversions)
+                .divide(BigDecimal.valueOf(totalReferrals), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                : BigDecimal.ZERO;
+
+        return TopAffiliateDto.builder()
+                .id(affiliate.getId())
+                .name(affiliate.getName())
+                .email(affiliate.getEmail())
+                .status(affiliate.getStatus())
+                .totalRevenue(totalRevenue)
+                .totalCommissions(totalCommissions)
+                .totalReferrals(totalReferrals)
+                .totalConversions(totalConversions)
+                .conversionRate(conversionRate)
+                .joinDate(affiliate.getCreatedAt())
+                .build();
     }
 
 }

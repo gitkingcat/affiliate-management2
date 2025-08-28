@@ -3,6 +3,7 @@ package com.saas.AffiliateManagement.controller;
 import com.saas.AffiliateManagement.models.dto.DashboardStatisticsDto;
 import com.saas.AffiliateManagement.models.dto.EarningsDataDto;
 import com.saas.AffiliateManagement.models.dto.PeriodStatisticsDto;
+import com.saas.AffiliateManagement.models.dto.TopAffiliateDto;
 import com.saas.AffiliateManagement.service.EarningsService;
 import com.saas.AffiliateManagement.service.StatisticsService;
 import jakarta.validation.constraints.Min;
@@ -16,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -85,6 +87,21 @@ public class StatisticsController {
                 .getAffiliatePeriodStatistics(clientId, startDate, endDate);
 
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/affiliates/top/{clientId}")
+    public ResponseEntity<List<TopAffiliateDto>> getTopAffiliates(
+            @PathVariable @Min(1) Long clientId,
+            @RequestParam(defaultValue = "10") @Min(1) Integer limit,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Optional<LocalDateTime> startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Optional<LocalDateTime> endDate) {
+
+        List<TopAffiliateDto> topAffiliates = statisticsService
+                .getTopAffiliatesForClient(clientId, limit, startDate, endDate);
+
+        return ResponseEntity.ok(topAffiliates);
     }
 
 }

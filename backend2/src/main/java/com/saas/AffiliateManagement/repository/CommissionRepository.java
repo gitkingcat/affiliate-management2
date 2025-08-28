@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CommissionRepository extends JpaRepository<Commission, Long> {
@@ -50,6 +51,12 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
     BigDecimal calculateTotalCommissionByClientIdAndDateRange(@Param("clientId") Long clientId,
                                                               @Param("startDate") LocalDateTime startDate,
                                                               @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(c.amount), 0) FROM Commission c WHERE c.affiliate.id = :affiliateId " +
+            "AND c.createdAt BETWEEN :startDate AND :endDate")
+    Optional<BigDecimal> calculateTotalCommissionByAffiliateId(@Param("affiliateId") Long affiliateId,
+                                                               @Param("startDate") LocalDateTime startDate,
+                                                               @Param("endDate") LocalDateTime endDate);
 
 
 }

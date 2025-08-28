@@ -86,4 +86,15 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
     BigDecimal calculateTotalRevenueByClientIdAndDateRange(@Param("clientId") Long clientId,
                                                            @Param("startDate") LocalDateTime startDate,
                                                            @Param("endDate") LocalDateTime endDate);
+
+    Long countByAffiliateIdAndCreatedAtBetween(Long affiliateId,
+                                               LocalDateTime startDate,
+                                               LocalDateTime endDate);
+
+    @Query("SELECT COUNT(r) FROM Referral r WHERE r.affiliate.id = :affiliateId " +
+            "AND r.status = :status AND r.createdAt BETWEEN :startDate AND :endDate")
+    Long countByAffiliateIdAndStatusAndCreatedAtBetween(@Param("affiliateId") Long affiliateId,
+                                                        @Param("status") String status,
+                                                        @Param("startDate") LocalDateTime startDate,
+                                                        @Param("endDate") LocalDateTime endDate);
 }

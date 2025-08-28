@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -27,6 +28,8 @@ public interface AffiliateRepository extends JpaRepository<Affiliate, Long> {
     Page<Affiliate> findByStatus(String status, Pageable pageable);
 
     Page<Affiliate> findByClientId(Long clientId, Pageable pageable);
+
+    List<Affiliate> findByClientId(Long clientId);
 
     Page<Affiliate> findByClientIdAndStatus(Long clientId, String status, Pageable pageable);
 
