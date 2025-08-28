@@ -27,12 +27,17 @@ repositories {
 dependencies {
 	// Spring Boot Starters
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	// Thymeleaf for server-side templating
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// JWT (latest version 0.12.x)
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
 	// Database
 	runtimeOnly 'org.postgresql:postgresql'
