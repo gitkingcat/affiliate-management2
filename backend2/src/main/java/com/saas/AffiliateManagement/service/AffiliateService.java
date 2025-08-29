@@ -3,6 +3,9 @@ package com.saas.AffiliateManagement.service;
 import com.saas.AffiliateManagement.exceptions.AffiliateNotFoundException;
 import com.saas.AffiliateManagement.exceptions.ClientNotFoundException;
 import com.saas.AffiliateManagement.exceptions.InvalidAffiliateDataException;
+import com.saas.AffiliateManagement.models.dto.AffiliateTableDto;
+import com.saas.AffiliateManagement.models.dto.AffiliateTableResponse;
+import com.saas.AffiliateManagement.models.dto.StatusCounts;
 import com.saas.AffiliateManagement.models.entity.Affiliate;
 import com.saas.AffiliateManagement.models.requests.AffiliateCreateRequest;
 import com.saas.AffiliateManagement.models.dto.AffiliateDto;
@@ -14,13 +17,18 @@ import com.saas.AffiliateManagement.service.mappers.AffiliateMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -357,4 +365,135 @@ public class AffiliateService {
         } while (affiliateRepository.existsByReferralCode(referralCode));
         return referralCode;
     }
+
+    public AffiliateTableResponse getAffiliatesForTable(
+            Long clientId, String status, String search,
+            Integer page, Integer size, String sortBy, String sortDirection) {
+
+        // Validate client exists
+        if (!clientRepository.existsById(clientId)) {
+            throw new ClientNotFoundException("Client not found with ID: " + clientId);
+        }
+
+        // Build pagination and sorting
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        // Get filtered affiliates
+        Page<Affiliate> affiliatesPage = getFilteredAffiliatesPage(
+                clientId, status, search, pageRequest
+        );
+
+        // Map to table DTOs
+        List<AffiliateTableDto> affiliateDtos = affiliatesPage.getContent()
+                .stream()
+                .map(this::mapToTableDto)
+                .collect(Collectors.toList());
+
+        // Get status counts for tabs
+        StatusCounts statusCounts = getStatusCounts(clientId);
+
+        // Build response
+        return AffiliateTableResponse.builder()
+                .affiliates(affiliateDtos)
+                .currentPage(page)
+                .totalPages(affiliatesPage.getTotalPages())
+                .totalElements(affiliatesPage.getTotalElements())
+                .pageSize(size)
+                .statusCounts(statusCounts)
+                .build();
+    }
+
+    private Page<Affiliate> getFilteredAffiliatesPage(
+            Long clientId, String status, String search, PageRequest pageRequest) {
+
+        if (status != null && !status.isEmpty() && search != null && !search.isEmpty()) {
+            // Both status and search
+            return affiliateRepository.findByClientIdAndStatusAndSearch(
+                    clientId, status, search, pageRequest
+            );
+        } else if (status != null && !status.isEmpty()) {
+            // Only status filter
+            return affiliateRepository.findByClientIdAndStatus(
+                    clientId, status, pageRequest
+            );
+        } else if (search != null && !search.isEmpty()) {
+            // Only search filter
+            return affiliateRepository.findByClientIdAndSearch(
+                    clientId, search, pageRequest
+            );
+        } else {
+            // No filters, just client
+            return affiliateRepository.findByClientId(clientId, pageRequest);
+        }
+    }
+
+    private AffiliateTableDto mapToTableDto(Affiliate affiliate) {
+        // Calculate metrics (you may need to join with other tables)
+        BigDecimal revenue = calculateAffiliateRevenue(affiliate.getId());
+        BigDecimal earnings = calculateAffiliateEarnings(affiliate.getId());
+        Integer clicks = countAffiliateClicks(affiliate.getId());
+        Integer leads = countAffiliateLeads(affiliate.getId());
+        Integer customers = countAffiliateCustomers(affiliate.getId());
+
+        return AffiliateTableDto.builder()
+                .id(affiliate.getId())
+                .name(affiliate.getName())
+                .email(affiliate.getEmail())
+                .signupDate(affiliate.getCreatedAt())
+                .status(affiliate.getStatus())
+                .revenue(revenue)
+                .earnings(earnings)
+                .clicks(clicks)
+                .leads(leads)
+                .customers(customers)
+                .build();
+    }
+
+    private StatusCounts getStatusCounts(Long clientId) {
+        Long active = affiliateRepository.countByClientIdAndStatus(clientId, "ACTIVE");
+        Long pending = affiliateRepository.countByClientIdAndStatus(clientId, "PENDING_APPROVAL");
+        Long invited = affiliateRepository.countByClientIdAndStatus(clientId, "INVITED");
+        Long inactive = affiliateRepository.countByClientIdAndStatus(clientId, "INACTIVE");
+        Long rejected = affiliateRepository.countByClientIdAndStatus(clientId, "REJECTED");
+        Long total = affiliateRepository.countByClientId(clientId);
+
+        return StatusCounts.builder()
+                .active(active)
+                .pending(pending)
+                .invited(invited)
+                .inactive(inactive)
+                .rejected(rejected)
+                .total(total)
+                .build();
+    }
+
+    // Helper methods for calculating metrics
+    private BigDecimal calculateAffiliateRevenue(Long affiliateId) {
+        // TODO: Implement based on your business logic
+        // This might involve querying conversions, sales, etc.
+        return BigDecimal.ZERO;
+    }
+
+    private BigDecimal calculateAffiliateEarnings(Long affiliateId) {
+        // TODO: Implement based on your commission calculations
+        return BigDecimal.ZERO;
+    }
+
+    private Integer countAffiliateClicks(Long affiliateId) {
+        // TODO: Query clicks/referrals table
+        return 0;
+    }
+
+    private Integer countAffiliateLeads(Long affiliateId) {
+        // TODO: Query leads table
+        return 0;
+    }
+
+    private Integer countAffiliateCustomers(Long affiliateId) {
+        // TODO: Query customers/conversions table
+        return 0;
+    }
+
+
 }

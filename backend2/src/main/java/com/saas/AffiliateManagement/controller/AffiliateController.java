@@ -1,5 +1,6 @@
 package com.saas.AffiliateManagement.controller;
 
+import com.saas.AffiliateManagement.models.dto.AffiliateTableResponse;
 import com.saas.AffiliateManagement.models.requests.AffiliateCreateRequest;
 import com.saas.AffiliateManagement.models.dto.AffiliateDto;
 import com.saas.AffiliateManagement.models.requests.AffiliateUpdateRequest;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -199,4 +201,24 @@ public class AffiliateController {
 
         return ResponseEntity.ok(newReferralCode);
     }
+
+
+    @GetMapping("/table")
+    public ResponseEntity<AffiliateTableResponse> getAffiliatesForTable(
+            @RequestParam @Min(1) Long clientId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") @Min(0) Integer page,
+            @RequestParam(defaultValue = "10") @Min(1) Integer size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
+
+        AffiliateTableResponse response = affiliateService
+                .getAffiliatesForTable(clientId, status, search,
+                        page, size, sortBy, sortDirection);
+
+        return ResponseEntity.ok(response);
+    }
+
+
 }
