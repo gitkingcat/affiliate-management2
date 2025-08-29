@@ -216,10 +216,10 @@ export default function CustomersPage() {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-auto bg-muted/30">
-                    <div className="container mx-auto p-6 max-w-[1400px]">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
+                    <div className="container mx-auto px-6 py-8">
                         <div className="flex items-center justify-between mb-6">
-                            <h1 className="text-2xl font-bold">Customers</h1>
+                            <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
                         </div>
 
                         {showInfoBanner && (
@@ -228,11 +228,12 @@ export default function CustomersPage() {
                                     onClick={() => setShowInfoBanner(false)}
                                     className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
                                 >
-                                    <X className="h-4 w-4" />
+                                    <X className="h-4 w-4"/>
                                 </button>
                                 <h3 className="font-semibold mb-2">What are Customers?</h3>
                                 <p className="text-sm text-gray-700">
-                                    Customers represent individuals referred by affiliates and can be Active/Paid, Leads, or Trial. Cancelled customers have discontinued their plan or product, while
+                                    Customers represent individuals referred by affiliates and can be Active/Paid,
+                                    Leads, or Trial. Cancelled customers have discontinued their plan or product, while
                                     Suspended ones have been suspended by you, preventing further commission generation.
                                     <a href="#" className="text-blue-600 hover:underline ml-1">Learn more.</a>
                                 </p>
@@ -279,9 +280,10 @@ export default function CustomersPage() {
                             {activeTab === "customers" && (
                                 <div className="bg-background rounded-lg shadow-sm border border-border">
                                     <div className="px-6 py-4 border-b border-border">
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                             <div className="relative flex-1 max-w-md">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Search
+                                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
                                                 <Input
                                                     placeholder="Search by customer name, email or ID..."
                                                     className="pl-10"
@@ -289,20 +291,22 @@ export default function CustomersPage() {
                                                     onChange={(e) => setSearchQuery(e.target.value)}
                                                 />
                                             </div>
-                                            <Button variant="outline" size="sm">
-                                                <Filter className="h-4 w-4 mr-2" />
-                                                Filters
-                                            </Button>
-                                            <Select value="actions">
-                                                <SelectTrigger className="w-[120px]">
-                                                    <SelectValue placeholder="Actions" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="actions">Actions</SelectItem>
-                                                    <SelectItem value="export">Export</SelectItem>
-                                                    <SelectItem value="delete">Delete</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <div className="flex gap-2">
+                                                <Button variant="outline" size="sm">
+                                                    <Filter className="h-4 w-4 mr-2"/>
+                                                    Filters
+                                                </Button>
+                                                <Select value="actions">
+                                                    <SelectTrigger className="w-[120px]">
+                                                        <SelectValue placeholder="Actions"/>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="actions">Actions</SelectItem>
+                                                        <SelectItem value="export">Export</SelectItem>
+                                                        <SelectItem value="delete">Delete</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -338,7 +342,8 @@ export default function CustomersPage() {
                                                         </TableCell>
                                                         <TableCell>
                                                             <div>
-                                                                <a href="#" className="text-blue-600 hover:underline font-medium">
+                                                                <a href="#"
+                                                                   className="text-blue-600 hover:underline font-medium">
                                                                     {customer.customerName}
                                                                 </a>
                                                                 <div className="text-sm text-muted-foreground">
@@ -348,7 +353,8 @@ export default function CustomersPage() {
                                                         </TableCell>
                                                         <TableCell>
                                                             <div>
-                                                                <a href="#" className="text-blue-600 hover:underline font-medium">
+                                                                <a href="#"
+                                                                   className="text-blue-600 hover:underline font-medium">
                                                                     {customer.partnerName}
                                                                 </a>
                                                                 <div className="text-sm text-muted-foreground">
@@ -371,9 +377,10 @@ export default function CustomersPage() {
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm text-muted-foreground">Rows per page:</span>
-                                                <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
+                                                <Select value={rowsPerPage.toString()}
+                                                        onValueChange={(value) => setRowsPerPage(Number(value))}>
                                                     <SelectTrigger className="w-[70px] h-8">
-                                                        <SelectValue />
+                                                        <SelectValue/>
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="10">10</SelectItem>
@@ -395,7 +402,7 @@ export default function CustomersPage() {
                                                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                                                     disabled={currentPage === 1}
                                                 >
-                                                    <ChevronLeft className="h-4 w-4" />
+                                                    <ChevronLeft className="h-4 w-4"/>
                                                 </Button>
                                                 <Button
                                                     variant="outline"
@@ -404,7 +411,7 @@ export default function CustomersPage() {
                                                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                                                     disabled={currentPage === totalPages}
                                                 >
-                                                    <ChevronRight className="h-4 w-4" />
+                                                    <ChevronRight className="h-4 w-4"/>
                                                 </Button>
                                             </div>
                                         </div>

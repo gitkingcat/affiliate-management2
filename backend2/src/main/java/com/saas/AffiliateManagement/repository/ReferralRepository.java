@@ -107,5 +107,5 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
                                            @Param("search") String search,
                                            Pageable pageable);
 
-    FileChannel findByClientId(Long clientId, Pageable pageable);
+    Page<Referral> findByClientId(Long clientId, Pageable pageable);
 }

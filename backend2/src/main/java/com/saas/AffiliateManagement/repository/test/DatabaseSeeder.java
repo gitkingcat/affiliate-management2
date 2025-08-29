@@ -17,9 +17,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Profile("dev")
@@ -32,6 +31,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ReferralRepository referralRepository;
     private final CommissionRepository commissionRepository;
     private final Random random = new Random();
+    private final Set<String> usedEmails = new HashSet<>();
+    private final AtomicInteger emailCounter = new AtomicInteger(1);
 
     @Override
     public void run(String... args) {
@@ -66,24 +67,33 @@ public class DatabaseSeeder implements CommandLineRunner {
         String[] plans = {"BASIC", "PREMIUM", "ENTERPRISE"};
 
         for (int i = 0; i < companies.length; i++) {
+            String companyName = companies[i];
+            String cleanName = companyName.toLowerCase().replace(" ", "");
+
             Client client = Client.builder()
-                    .companyName(companies[i])
-                    .email("contact@" + companies[i].toLowerCase().replace(" ", "") + ".com")
+                    .companyName(companyName)
+                    .name(companyName)
+                    .email("contact@" + cleanName + ".com")
                     .contactFirstName("John")
                     .contactLastName("Manager" + (i + 1))
                     .phoneNumber("+1-555-" + String.format("%04d", random.nextInt(10000)))
-                    .website("https://" + companies[i].toLowerCase().replace(" ", "") + ".com")
-                    .address(random.nextInt(999) + " Business Street")
+                    .website("https://" + cleanName + ".com")
+                    .address((random.nextInt(999) + 1) + " Business Street")
                     .city("New York")
                     .country("USA")
                     .postalCode(String.format("%05d", random.nextInt(100000)))
-                    .industry(industries[i])
+                    .industry(industries[i % industries.length])
                     .companySize(sizes[random.nextInt(sizes.length)])
                     .status("ACTIVE")
                     .subscriptionPlan(plans[random.nextInt(plans.length)])
-                    .businessDescription("Leading company in " + industries[i].toLowerCase())
+                    .businessDescription("Leading company in " + industries[i % industries.length].toLowerCase())
+                    .notes("Sample client created for testing")
                     .emailVerified(true)
+                    .emailVerificationToken(null)
+                    .suspensionReason(null)
                     .emailVerifiedAt(LocalDateTime.now().minusDays(random.nextInt(30)))
+                    .subscriptionUpgradedAt(random.nextBoolean() ? LocalDateTime.now().minusDays(random.nextInt(60)) : null)
+                    .suspendedAt(null)
                     .createdAt(LocalDateTime.now().minusDays(random.nextInt(90)))
                     .updatedAt(LocalDateTime.now().minusDays(random.nextInt(7)))
                     .build();
@@ -112,13 +122,12 @@ public class DatabaseSeeder implements CommandLineRunner {
         String[] paymentMethods = {"PayPal", "Bank Transfer", "Stripe", "Wire Transfer"};
 
         for (Client client : clients) {
-//            int affiliatesPerClient = 100 + random.nextInt(5); // 3-7 affiliates per client
-            int affiliatesPerClient = 10 + random.nextInt(5); // 3-7 affiliates per client
+            int affiliatesPerClient = 10 + random.nextInt(5);
 
             for (int i = 0; i < affiliatesPerClient; i++) {
                 String firstName = firstNames[random.nextInt(firstNames.length)];
                 String lastName = lastNames[random.nextInt(lastNames.length)];
-                String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+                String email = generateUniqueEmail(firstName, lastName);
 
                 Affiliate affiliate = Affiliate.builder()
                         .client(client)
@@ -134,6 +143,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .socialMediaLinks("@" + firstName.toLowerCase() + lastName.toLowerCase())
                         .notes("Experienced affiliate marketer with focus on " + client.getIndustry().toLowerCase())
                         .referralCode(generateReferralCode(firstName, lastName))
+                        .rejectionReason(null)
                         .createdAt(LocalDateTime.now().minusDays(random.nextInt(60)))
                         .updatedAt(LocalDateTime.now().minusDays(random.nextInt(7)))
                         .build();
@@ -155,17 +165,31 @@ public class DatabaseSeeder implements CommandLineRunner {
         String[] countries = {"USA", "Canada", "UK", "Germany", "France", "Australia", "Japan"};
         String[] cities = {"New York", "Los Angeles", "London", "Toronto", "Berlin", "Paris", "Tokyo"};
         String[] statuses = {"CLICKED", "CONVERTED", "CLICKED", "CLICKED", "CONVERTED"};
+        String[] sources = {"Facebook", "Instagram", "YouTube", "Blog", "Email", "Direct"};
+
+        String[] customerFirstNames = {"Alice", "Bob", "Charlie", "Diana", "Edward", "Fiona", "George", "Hannah",
+                "Isaac", "Julia", "Kevin", "Laura", "Michael", "Nancy", "Oscar", "Patricia", "Quinn", "Rachel",
+                "Samuel", "Tina", "Uma", "Victor", "Wendy", "Xavier", "Yvonne", "Zachary"};
+
+        String[] customerLastNames = {"Brown", "Davis", "Evans", "Fisher", "Green", "Harris", "King", "Lewis",
+                "Miller", "Nelson", "O'Connor", "Parker", "Quinn", "Roberts", "Stone", "Turner", "Underwood",
+                "Vincent", "Walker", "Young", "Zhang", "Adams", "Baker", "Clark", "Edwards", "Foster"};
 
         for (Affiliate affiliate : affiliates) {
-            int referralsCount = 10 + random.nextInt(40); // 10-50 referrals per affiliate
+            int referralsCount = 10 + random.nextInt(20);
 
             for (int i = 0; i < referralsCount; i++) {
                 LocalDateTime clickedAt = LocalDateTime.now().minusDays(random.nextInt(180));
                 String status = statuses[random.nextInt(statuses.length)];
+                String customerFirstName = customerFirstNames[random.nextInt(customerFirstNames.length)];
+                String customerLastName = customerLastNames[random.nextInt(customerLastNames.length)];
+
+                String uniqueCustomerEmail = generateUniqueCustomerEmail(customerFirstName, customerLastName);
 
                 Referral referral = Referral.builder()
+                        .client(affiliate.getClient())
                         .affiliate(affiliate)
-                        .referralCode(affiliate.getReferralCode() + "-" + String.format("%04d", i))
+                        .referralCode(affiliate.getReferralCode() + "-" + String.format("%06d", emailCounter.getAndIncrement()))
                         .targetUrl("https://example.com/product/" + random.nextInt(100))
                         .sourceUrl("https://affiliate-site.com/promo")
                         .status(status)
@@ -177,11 +201,21 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .country(countries[random.nextInt(countries.length)])
                         .city(cities[random.nextInt(cities.length)])
                         .conversionValue("CONVERTED".equals(status) ?
-                                BigDecimal.valueOf(50 + random.nextDouble() * 450) : null) // $50-$500
-                        .orderId("CONVERTED".equals(status) ? "ORD-" + System.currentTimeMillis() : null)
+                                BigDecimal.valueOf(50 + random.nextDouble() * 450) : null)
+                        .orderId("CONVERTED".equals(status) ? "ORD-" + System.currentTimeMillis() + i : null)
+                        .metadataJson(null)
                         .clickedAt(clickedAt)
                         .convertedAt("CONVERTED".equals(status) ?
                                 clickedAt.plusHours(random.nextInt(48)) : null)
+                        .customerName(customerFirstName + " " + customerLastName)
+                        .customerEmail(uniqueCustomerEmail)
+                        .source(sources[random.nextInt(sources.length)])
+                        .totalPaid("CONVERTED".equals(status) ?
+                                BigDecimal.valueOf(50 + random.nextDouble() * 450) : BigDecimal.ZERO)
+                        .totalCommission("CONVERTED".equals(status) ?
+                                BigDecimal.valueOf(5 + random.nextDouble() * 45) : BigDecimal.ZERO)
+                        .lastPurchaseDate("CONVERTED".equals(status) ? clickedAt : null)
+                        .purchaseCount("CONVERTED".equals(status) ? random.nextInt(5) + 1 : 0)
                         .createdAt(clickedAt)
                         .updatedAt(clickedAt)
                         .build();
@@ -201,13 +235,12 @@ public class DatabaseSeeder implements CommandLineRunner {
         String[] types = {"SALE", "LEAD", "SUBSCRIPTION", "RENEWAL"};
         String[] currencies = {"USD", "EUR", "GBP"};
 
-        // Create commissions for converted referrals
         List<Referral> convertedReferrals = referrals.stream()
                 .filter(r -> "CONVERTED".equals(r.getStatus()))
                 .toList();
 
         for (Referral referral : convertedReferrals) {
-            BigDecimal commissionRate = BigDecimal.valueOf(0.05 + random.nextDouble() * 0.15); // 5-20%
+            BigDecimal commissionRate = BigDecimal.valueOf(0.05 + random.nextDouble() * 0.15);
             BigDecimal amount = referral.getConversionValue().multiply(commissionRate);
 
             LocalDateTime earnedAt = referral.getConvertedAt();
@@ -231,23 +264,22 @@ public class DatabaseSeeder implements CommandLineRunner {
             commissions.add(commission);
         }
 
-        // Create additional historical commissions for the past year
         for (Affiliate affiliate : affiliates) {
             if (!"ACTIVE".equals(affiliate.getStatus())) continue;
 
             for (int month = 1; month <= 12; month++) {
-                int commissionsThisMonth = random.nextInt(5) + 1; // 1-5 commissions per month
+                int commissionsThisMonth = random.nextInt(3) + 1;
 
                 for (int i = 0; i < commissionsThisMonth; i++) {
                     LocalDateTime earnedAt = LocalDateTime.of(2024, Month.of(month),
                             1 + random.nextInt(28), random.nextInt(24), random.nextInt(60));
 
-                    BigDecimal amount = BigDecimal.valueOf(25 + random.nextDouble() * 475); // $25-$500
+                    BigDecimal amount = BigDecimal.valueOf(25 + random.nextDouble() * 475);
                     String status = statuses[random.nextInt(statuses.length)];
 
                     Commission commission = Commission.builder()
                             .affiliate(affiliate)
-                            .referralId(1000L + random.nextLong(9000)) // Random referral ID
+                            .referralId(1000L + random.nextLong(9000))
                             .amount(amount)
                             .percentage(BigDecimal.valueOf(5 + random.nextDouble() * 15))
                             .currency("USD")
@@ -266,6 +298,34 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         commissionRepository.saveAll(commissions);
+    }
+
+    private String generateUniqueEmail(String firstName, String lastName) {
+        String baseEmail = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
+        String email = baseEmail;
+        int counter = 1;
+
+        while (usedEmails.contains(email)) {
+            email = firstName.toLowerCase() + "." + lastName.toLowerCase() + counter + "@gmail.com";
+            counter++;
+        }
+
+        usedEmails.add(email);
+        return email;
+    }
+
+    private String generateUniqueCustomerEmail(String firstName, String lastName) {
+        String email;
+        int attempts = 0;
+
+        do {
+            int randomSuffix = emailCounter.getAndIncrement();
+            email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "." + randomSuffix + "@customer.com";
+            attempts++;
+        } while (usedEmails.contains(email) && attempts < 100);
+
+        usedEmails.add(email);
+        return email;
     }
 
     private String generateReferralCode(String firstName, String lastName) {
