@@ -67,4 +67,31 @@ public interface AffiliateRepository extends JpaRepository<Affiliate, Long> {
                                            Pageable pageable);
 
 
+
+
+
+    @Query("SELECT a FROM Affiliate a WHERE a.client.id = :clientId " +
+            "AND a.status = :status " +
+            "AND (LOWER(a.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(a.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(a.companyName) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Affiliate> findByClientIdAndStatusAndSearch(
+            @Param("clientId") Long clientId,
+            @Param("status") String status,
+            @Param("search") String search,
+            Pageable pageable
+    );
+
+    @Query("SELECT a FROM Affiliate a WHERE a.client.id = :clientId " +
+            "AND (LOWER(a.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(a.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(a.companyName) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Affiliate> findByClientIdAndSearch(
+            @Param("clientId") Long clientId,
+            @Param("search") String search,
+            Pageable pageable
+    );
+
 }
