@@ -5,26 +5,11 @@ import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
 import { cn } from "@/lib/utils"
 import {
-    Brain,
-    Users,
     ShoppingCart,
-    Bitcoin,
-    TrendingUp,
-    GraduationCap,
-    Gamepad2,
     Stethoscope,
-    BarChart3,
-    Package,
-    CreditCard,
-    Calendar,
-    HelpCircle,
-    Mic,
-    FolderKanban,
-    Phone,
     Menu,
     X, Home, Handshake, DollarSign, Settings2, MailIcon, Box, Settings,
 } from "lucide-react"
-import {ZodEmail} from "zod/v4";
 
 const navigationItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true  },

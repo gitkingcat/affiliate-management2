@@ -2,8 +2,8 @@ package com.saas.AffiliateManagement.controller;
 
 import com.saas.AffiliateManagement.exceptions.InvalidReferralDataException;
 import com.saas.AffiliateManagement.exceptions.ReferralNotFoundException;
-import com.saas.AffiliateManagement.models.*;
 import com.saas.AffiliateManagement.models.dto.ConversionRateDto;
+import com.saas.AffiliateManagement.models.dto.ReferralCustomerDTO;
 import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.requests.ReferralCreateRequest;
 import com.saas.AffiliateManagement.models.requests.ReferralUpdateRequest;
@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -417,6 +419,29 @@ public class ReferralController {
 
         return ResponseEntity.ok(sourceAnalytics);
     }
+
+    @GetMapping("/client/{clientId}/customers")
+    public ResponseEntity<Page<ReferralCustomerDTO>> getCustomersByClient(
+            @PathVariable Long clientId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection,
+            @RequestParam(required = false) String search) {
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<ReferralCustomerDTO> customers = search != null && !search.trim().isEmpty()
+                ? referralService.searchReferralCustomersByClient(clientId, search, pageable)
+                : referralService.getReferralCustomersByClient(clientId, pageable);
+
+        return ResponseEntity.ok(customers);
+    }
+
 
     /**
      * Extracts the client IP address from the HTTP request.

@@ -4,6 +4,7 @@ import com.saas.AffiliateManagement.exceptions.InvalidReferralDataException;
 import com.saas.AffiliateManagement.exceptions.ReferralNotFoundException;
 import com.saas.AffiliateManagement.models.*;
 import com.saas.AffiliateManagement.models.dto.ConversionRateDto;
+import com.saas.AffiliateManagement.models.dto.ReferralCustomerDTO;
 import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.entity.Affiliate;
 import com.saas.AffiliateManagement.models.entity.Referral;
@@ -354,6 +355,20 @@ public class ReferralServiceImpl implements ReferralService {
                 .collect(Collectors.groupingBy(
                         r -> extractDomain(r.getSourceUrl()),
                         Collectors.counting()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReferralCustomerDTO> searchReferralCustomersByClient(Long clientId, String searchTerm, Pageable pageable) {
+        return referralRepository.searchByClientIdAndTerm(clientId, searchTerm, pageable)
+                .map(this::convertToDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReferralCustomerDTO> getReferralCustomersByClient(Long clientId, Pageable pageable) {
+        return referralRepository.findByClientId(clientId, pageable)
+                .map(this::convertToDTO);
     }
 
     private void validateAffiliateExists(Long affiliateId) {
@@ -849,5 +864,24 @@ public class ReferralServiceImpl implements ReferralService {
         } catch (Exception e) {
             return "unknown";
         }
+    }
+
+    private ReferralCustomerDTO convertToDTO(Referral referral) {
+        return ReferralCustomerDTO.builder()
+                .id(referral.getId())
+                .customerName(referral.getCustomerName())
+                .customerEmail(referral.getCustomerEmail())
+                .clientId(referral.getClient().getId())
+                .clientName(referral.getClient().getName())
+                .clientEmail(referral.getClient().getEmail())
+                .totalPaid(referral.getTotalPaid())
+                .totalCommission(referral.getTotalCommission())
+                .status(referral.getStatus())
+                .createdAt(referral.getCreatedAt())
+                .lastPurchaseDate(referral.getLastPurchaseDate())
+                .purchaseCount(referral.getPurchaseCount())
+                .referralCode(referral.getReferralCode())
+                .source(referral.getSource())
+                .build();
     }
 }

@@ -23,6 +23,9 @@ public class Client {
     @Column(name = "company_name", nullable = false, unique = true, length = 100)
     private String companyName;
 
+    @Column(name = "name", nullable = false, unique = true, length = 100)
+    private String name;
+
     @Column(unique = true, nullable = false)
     private String email;
 

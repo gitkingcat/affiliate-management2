@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -97,4 +98,14 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
                                                         @Param("status") String status,
                                                         @Param("startDate") LocalDateTime startDate,
                                                         @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT r FROM Referral r WHERE r.client.id = :clientId AND " +
+            "(LOWER(r.customerName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(r.customerEmail) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(r.referralCode) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Referral> searchByClientIdAndTerm(@Param("clientId") Long clientId,
+                                           @Param("search") String search,
+                                           Pageable pageable);
+
+    FileChannel findByClientId(Long clientId, Pageable pageable);
 }

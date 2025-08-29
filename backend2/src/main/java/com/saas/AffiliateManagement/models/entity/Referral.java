@@ -1,11 +1,15 @@
 package com.saas.AffiliateManagement.models.entity;
 
+import com.saas.AffiliateManagement.models.ReferralStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -22,6 +26,10 @@ public class Referral {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "affiliate_id", nullable = false)
@@ -75,9 +83,43 @@ public class Referral {
     @Column(name = "converted_at")
     private LocalDateTime convertedAt;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
+    private String customerName;
+
+    @Column(nullable = false, unique = true)
+    private String customerEmail;
+
+    @Column
+    private String source;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal totalPaid = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal totalCommission = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ReferralStatus referralStatus = ReferralStatus.LEAD;
+
+    @Column
+    private LocalDateTime lastPurchaseDate;
+
+    @Column
+    @Builder.Default
+    private Integer purchaseCount = 0;
+
+    @Column
+    private LocalDateTime conversionDate;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

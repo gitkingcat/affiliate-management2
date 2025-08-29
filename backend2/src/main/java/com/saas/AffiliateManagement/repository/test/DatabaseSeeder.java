@@ -1,6 +1,5 @@
 package com.saas.AffiliateManagement.repository.test;
 
-
 import com.saas.AffiliateManagement.models.entity.Affiliate;
 import com.saas.AffiliateManagement.models.entity.Client;
 import com.saas.AffiliateManagement.models.entity.Commission;
@@ -113,6 +112,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         String[] paymentMethods = {"PayPal", "Bank Transfer", "Stripe", "Wire Transfer"};
 
         for (Client client : clients) {
+//            int affiliatesPerClient = 100 + random.nextInt(5); // 3-7 affiliates per client
             int affiliatesPerClient = 10 + random.nextInt(5); // 3-7 affiliates per client
 
             for (int i = 0; i < affiliatesPerClient; i++) {

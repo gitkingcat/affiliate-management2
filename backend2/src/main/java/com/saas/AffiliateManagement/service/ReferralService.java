@@ -1,6 +1,7 @@
 package com.saas.AffiliateManagement.service;
 
 import com.saas.AffiliateManagement.models.dto.ConversionRateDto;
+import com.saas.AffiliateManagement.models.dto.ReferralCustomerDTO;
 import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.requests.ReferralCreateRequest;
 import com.saas.AffiliateManagement.models.requests.ReferralUpdateRequest;
@@ -79,4 +80,8 @@ public interface ReferralService {
     Map<String, Long> getReferralSourceAnalytics(Optional<Long> affiliateId,
                                                  Optional<LocalDateTime> startDate,
                                                  Optional<LocalDateTime> endDate);
+
+    Page<ReferralCustomerDTO> searchReferralCustomersByClient(Long clientId, String search, Pageable pageable);
+
+    Page<ReferralCustomerDTO> getReferralCustomersByClient(Long clientId, Pageable pageable);
 }
