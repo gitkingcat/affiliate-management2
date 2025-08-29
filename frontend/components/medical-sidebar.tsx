@@ -27,15 +27,15 @@ import {
 import {ZodEmail} from "zod/v4";
 
 const navigationItems = [
-    { icon: Home, label: "Dashboard", href: "/dashboard" },
-    { icon: Handshake, label: "Partners", href: "#" },
-    { icon: ShoppingCart, label: "Customers", href: "#" },
-    { icon: DollarSign, label: "Payouts", href: "#" },
-    { icon: Settings2, label: "Program Settings", href: "#" },
-    { icon: MailIcon, label: "Emails", href: "#" },
-    { icon: Box, label: "Resources", href: "#" },
-    { icon: Stethoscope, label: "Reports", href: "#", active: true },
-    { icon: Settings, label: "Settings", href: "#" }
+    { icon: Home, label: "Dashboard", href: "/dashboard", active: true  },
+    { icon: Handshake, label: "Partners", href: "/partners" },
+    { icon: ShoppingCart, label: "Customers", href: "/customers" },
+    { icon: DollarSign, label: "Payouts", href: "/payouts" },
+    { icon: Settings2, label: "Program Settings", href: "/program-settings" },
+    { icon: MailIcon, label: "Emails", href: "/emails" },
+    { icon: Box, label: "Resources", href: "/resources" },
+    { icon: Stethoscope, label: "Reports", href: "/reports",},
+    { icon: Settings, label: "Settings", href: "/settings" }
 ]
 
 interface MedicalSidebarProps {
@@ -60,7 +60,7 @@ export function MedicalSidebar({ className }: MedicalSidebarProps) {
                         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                             <Stethoscope className="w-5 h-5 text-primary-foreground" />
                         </div>
-                        <span className="font-bold text-lg text-sidebar-foreground">WowDash</span>
+                        <span className="font-bold text-lg text-sidebar-foreground">Affiliate Software</span>
                     </div>
                 )}
                 <Button

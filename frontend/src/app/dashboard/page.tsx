@@ -5,12 +5,11 @@ import { MedicalSidebar } from "@/components/medical-sidebar"
 import { StatsCard } from "@/components/stats-card"
 import { EarningChart } from "@/components/earning-chart"
 import { TopAffiliates } from "@/components/top-affiliates"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Users, UserCheck, Heart, DollarSign, Search, Bell, Mail, TrendingUp, Activity } from "lucide-react"
+import { Users, UserCheck, DollarSign, Search, Bell, Mail, TrendingUp, Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {NewClients} from "@/components/new-clients";
 
 interface DashboardStatistics {
     newAffiliatesCount: number;
@@ -223,9 +222,6 @@ export default function Dashboard() {
                         <EarningChart />
                         <TopAffiliates />
                     </div>
-
-                    {/* New Clients Section */}
-                    <NewClients />
                 </main>
             </div>
         </div>
