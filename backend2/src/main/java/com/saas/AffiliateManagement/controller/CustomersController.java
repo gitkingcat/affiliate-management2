@@ -43,7 +43,7 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class CustomersController {
 
-    private final CustomerService referralService;
+    private final CustomerService customerService;
 
     /**
      * Constructor for dependency injection.
@@ -52,7 +52,7 @@ public class CustomersController {
      */
     @Autowired
     public CustomersController(CustomerService referralService) {
-        this.referralService = referralService;
+        this.customerService = referralService;
     }
 
     /**
@@ -71,7 +71,7 @@ public class CustomersController {
         String userAgent = request.getHeader("User-Agent");
         String ipAddress = getClientIpAddress(request);
 
-        ReferralDto trackedReferral = referralService
+        ReferralDto trackedReferral = customerService
                 .trackReferral(createRequest, userAgent, ipAddress);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -94,7 +94,7 @@ public class CustomersController {
         String userAgent = request.getHeader("User-Agent");
         String ipAddress = getClientIpAddress(request);
 
-        List<ReferralDto> trackedReferrals = referralService
+        List<ReferralDto> trackedReferrals = customerService
                 .trackBatchReferrals(createRequests, userAgent, ipAddress);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -112,7 +112,7 @@ public class CustomersController {
     public ResponseEntity<ReferralDto> getReferralById(
             @PathVariable @Min(1) Long referralId) {
 
-        ReferralDto referral = referralService.getReferralById(referralId);
+        ReferralDto referral = customerService.getReferralById(referralId);
         return ResponseEntity.ok(referral);
     }
 
@@ -127,7 +127,7 @@ public class CustomersController {
     public ResponseEntity<ReferralDto> getReferralByCode(
             @PathVariable String referralCode) {
 
-        ReferralDto referral = referralService.getReferralByCode(referralCode);
+        ReferralDto referral = customerService.getReferralByCode(referralCode);
         return ResponseEntity.ok(referral);
     }
 
@@ -147,7 +147,7 @@ public class CustomersController {
             @RequestParam Optional<String> referralCode,
             Pageable pageable) {
 
-        Page<ReferralDto> searchResults = referralService.searchReferrals(status, affiliateId, referralCode, pageable);
+        Page<ReferralDto> searchResults = customerService.searchReferrals(status, affiliateId, referralCode, pageable);
 
         return ResponseEntity.ok(searchResults);
     }
@@ -172,7 +172,7 @@ public class CustomersController {
             Optional<LocalDateTime> endDate,
             Pageable pageable) {
 
-        Page<ReferralDto> referrals = referralService
+        Page<ReferralDto> referrals = customerService
                 .getReferralsByAffiliateId(affiliateId, status, startDate, endDate, pageable);
 
         return ResponseEntity.ok(referrals);
@@ -192,7 +192,7 @@ public class CustomersController {
             @PathVariable @Min(1) Long referralId,
             @Valid @RequestBody ReferralUpdateRequest updateRequest) {
 
-        ReferralDto updatedReferral = referralService
+        ReferralDto updatedReferral = customerService
                 .updateReferral(referralId, updateRequest);
 
         return ResponseEntity.ok(updatedReferral);
@@ -209,7 +209,7 @@ public class CustomersController {
     public ResponseEntity<Void> deleteReferral(
             @PathVariable @Min(1) Long referralId) {
 
-        referralService.deleteReferral(referralId);
+        customerService.deleteReferral(referralId);
         return ResponseEntity.noContent().build();
     }
 
@@ -228,7 +228,7 @@ public class CustomersController {
             @RequestParam @Min(0) BigDecimal conversionValue,
             @RequestParam Optional<String> orderId) {
 
-        ReferralDto convertedReferral = referralService
+        ReferralDto convertedReferral = customerService
                 .convertReferral(referralId, conversionValue, orderId);
 
         return ResponseEntity.ok(convertedReferral);
@@ -245,7 +245,7 @@ public class CustomersController {
     public ResponseEntity<ReferralDto> cancelConversion(
             @PathVariable @Min(1) Long referralId) {
 
-        ReferralDto cancelledReferral = referralService
+        ReferralDto cancelledReferral = customerService
                 .cancelConversion(referralId);
 
         return ResponseEntity.ok(cancelledReferral);
@@ -262,7 +262,7 @@ public class CustomersController {
     public ResponseEntity<ReferralDto> expireReferral(
             @PathVariable @Min(1) Long referralId) {
 
-        ReferralDto expiredReferral = referralService
+        ReferralDto expiredReferral = customerService
                 .expireReferral(referralId);
 
         return ResponseEntity.ok(expiredReferral);
@@ -284,7 +284,7 @@ public class CustomersController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             Optional<LocalDateTime> endDate) {
 
-        ReferralTrackingResponse statistics = referralService
+        ReferralTrackingResponse statistics = customerService
                 .getReferralStatistics(affiliateId, startDate, endDate);
 
         return ResponseEntity.ok(statistics);
@@ -308,7 +308,7 @@ public class CustomersController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             Optional<LocalDateTime> endDate) {
 
-        List<ReferralDto> topReferrals = referralService
+        List<ReferralDto> topReferrals = customerService
                 .getTopPerformingReferrals(affiliateId, limit, startDate, endDate);
 
         return ResponseEntity.ok(topReferrals);
@@ -332,7 +332,7 @@ public class CustomersController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             Optional<LocalDateTime> endDate) {
 
-        ConversionRateDto conversionRates = referralService
+        ConversionRateDto conversionRates = customerService
                 .getConversionRateAnalytics(affiliateId, period, startDate, endDate);
 
         return ResponseEntity.ok(conversionRates);
@@ -354,7 +354,7 @@ public class CustomersController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime endDate) {
 
-        BigDecimal totalRevenue = referralService
+        BigDecimal totalRevenue = customerService
                 .calculateTotalRevenueForAffiliate(affiliateId, startDate, endDate);
 
         return ResponseEntity.ok(totalRevenue);
@@ -374,7 +374,7 @@ public class CustomersController {
             @RequestParam Optional<Integer> daysOld,
             Pageable pageable) {
 
-        Page<ReferralDto> pendingConversions = referralService
+        Page<ReferralDto> pendingConversions = customerService
                 .getPendingConversions(affiliateId, daysOld, pageable);
 
         return ResponseEntity.ok(pendingConversions);
@@ -392,7 +392,7 @@ public class CustomersController {
             @RequestParam(defaultValue = "30") Integer days,
             @RequestParam Optional<Long> affiliateId) {
 
-        Map<String, Object> trends = referralService
+        Map<String, Object> trends = customerService
                 .getReferralTrends(days, affiliateId);
 
         return ResponseEntity.ok(trends);
@@ -414,7 +414,7 @@ public class CustomersController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             Optional<LocalDateTime> endDate) {
 
-        Map<String, Long> sourceAnalytics = referralService
+        Map<String, Long> sourceAnalytics = customerService
                 .getReferralSourceAnalytics(affiliateId, startDate, endDate);
 
         return ResponseEntity.ok(sourceAnalytics);
@@ -436,8 +436,8 @@ public class CustomersController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         Page<ReferralCustomerDTO> customers = search != null && !search.trim().isEmpty()
-                ? referralService.searchReferralCustomersByClient(clientId, search, pageable)
-                : referralService.getReferralCustomersByClient(clientId, pageable);
+                ? customerService.searchReferralCustomersByClient(clientId, search, pageable)
+                : customerService.getReferralCustomersByClient(clientId, pageable);
 
         return ResponseEntity.ok(customers);
     }
@@ -463,4 +463,6 @@ public class CustomersController {
 
         return request.getRemoteAddr();
     }
+
+
 }
