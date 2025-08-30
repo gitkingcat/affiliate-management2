@@ -8,7 +8,7 @@ import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.requests.ReferralCreateRequest;
 import com.saas.AffiliateManagement.models.requests.ReferralUpdateRequest;
 import com.saas.AffiliateManagement.models.responses.ReferralTrackingResponse;
-import com.saas.AffiliateManagement.service.ReferralService;
+import com.saas.AffiliateManagement.service.CustomerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -41,9 +41,9 @@ import java.util.Optional;
 @RequestMapping("/api/v1/referrals")
 @Validated
 @CrossOrigin(origins = "*", maxAge = 3600)
-public class ReferralController {
+public class CustomersController {
 
-    private final ReferralService referralService;
+    private final CustomerService referralService;
 
     /**
      * Constructor for dependency injection.
@@ -51,7 +51,7 @@ public class ReferralController {
      * @param referralService the referral service to handle business logic
      */
     @Autowired
-    public ReferralController(ReferralService referralService) {
+    public CustomersController(CustomerService referralService) {
         this.referralService = referralService;
     }
 

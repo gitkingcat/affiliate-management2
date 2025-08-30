@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public interface ReferralService {
+public interface CustomerService {
 
     ReferralDto trackReferral(ReferralCreateRequest createRequest,
                               String userAgent, String ipAddress);

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class ReferralServiceImpl implements ReferralService {
+public class CustomerServiceImpl implements CustomerService {
 
     private final ReferralRepository referralRepository;
     private final AffiliateRepository affiliateRepository;
