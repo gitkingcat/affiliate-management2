@@ -132,11 +132,10 @@ export default function PayoutsPage() {
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="flex items-center justify-between p-6 border-b border-border">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold">Payouts</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="h-4 w-4 mr-2"/>
                 Upload payouts
               </Button>
               <Button size="sm">
@@ -147,17 +146,22 @@ export default function PayoutsPage() {
 
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold tracking-tight">Payouts</h1>
+              </div>
               {showInfoBanner && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
                     <button
                         onClick={() => setShowInfoBanner(false)}
                         className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4"/>
                     </button>
                     <h3 className="font-semibold mb-2">What are Payouts?</h3>
                     <p className="text-sm text-gray-700">
-                      Payouts are automatically generated on a NET-15 basis, meaning 15 days after the end of each month. For example, commissions earned in September will have payouts generated on October 15th. You can also manually generate payouts at any time using the 'Generate Payouts' button.
+                      Payouts are automatically generated on a NET-15 basis, meaning 15 days after the end of each
+                      month. For example, commissions earned in September will have payouts generated on October 15th.
+                      You can also manually generate payouts at any time using the 'Generate Payouts' button.
                       <a href="#" className="text-blue-600 hover:underline ml-1">Learn more.</a>
                     </p>
                   </div>
@@ -192,7 +196,8 @@ export default function PayoutsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Search
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"/>
                       <Input
                           placeholder="Search by partner name, email, or payout ID..."
                           value={searchQuery}
@@ -203,7 +208,7 @@ export default function PayoutsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm">
-                      <Filter className="h-4 w-4 mr-2" />
+                      <Filter className="h-4 w-4 mr-2"/>
                       Filters
                     </Button>
                     <Button variant="outline" size="sm">
@@ -262,7 +267,7 @@ export default function PayoutsPage() {
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <span>{payout.method}</span>
-                                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground"/>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -278,7 +283,7 @@ export default function PayoutsPage() {
                               </TableCell>
                               <TableCell>
                                 <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
+                                  <MoreHorizontal className="h-4 w-4"/>
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -303,8 +308,8 @@ export default function PayoutsPage() {
                             onClick={() => setCurrentPage(1)}
                             disabled={currentPage === 1}
                         >
-                          <ChevronLeft className="h-4 w-4" />
-                          <ChevronLeft className="h-4 w-4" />
+                          <ChevronLeft className="h-4 w-4"/>
+                          <ChevronLeft className="h-4 w-4"/>
                         </Button>
                         <Button
                             variant="outline"
@@ -312,7 +317,7 @@ export default function PayoutsPage() {
                             onClick={() => setCurrentPage(currentPage - 1)}
                             disabled={currentPage === 1}
                         >
-                          <ChevronLeft className="h-4 w-4" />
+                          <ChevronLeft className="h-4 w-4"/>
                         </Button>
 
                         <span className="text-sm text-muted-foreground px-2">
@@ -325,7 +330,7 @@ export default function PayoutsPage() {
                             onClick={() => setCurrentPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
                         >
-                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-4 w-4"/>
                         </Button>
                         <Button
                             variant="outline"
@@ -333,8 +338,8 @@ export default function PayoutsPage() {
                             onClick={() => setCurrentPage(totalPages)}
                             disabled={currentPage === totalPages}
                         >
-                          <ChevronRight className="h-4 w-4" />
-                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-4 w-4"/>
+                          <ChevronRight className="h-4 w-4"/>
                         </Button>
                       </div>
 
@@ -342,7 +347,7 @@ export default function PayoutsPage() {
                         <span className="text-sm text-muted-foreground">Rows per page</span>
                         <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
                           <SelectTrigger className="w-16">
-                            <SelectValue />
+                            <SelectValue/>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="10">10</SelectItem>

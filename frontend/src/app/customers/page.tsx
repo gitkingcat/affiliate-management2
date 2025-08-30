@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, Bell, Mail, X } from "lucide-react"
+import {ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, Bell, Mail, X, Upload} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -187,32 +187,8 @@ export default function CustomersPage() {
             <MedicalSidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <header className="bg-background border-b border-border">
-                    <div className="px-6 py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center flex-1 max-w-2xl gap-4">
-                                <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Search affiliates, customers, payouts..."
-                                        className="pl-10 bg-muted/50"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon">
-                                    <Bell className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon">
-                                    <Mail className="h-4 w-4" />
-                                </Button>
-                                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
-                                    MS
-                                </div>
-                            </div>
-                        </div>
+                <header className="flex items-center justify-between p-6 border-b border-border">
+                    <div className="flex items-center gap-4">
                     </div>
                 </header>
 

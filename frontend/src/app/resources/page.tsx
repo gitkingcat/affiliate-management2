@@ -4,428 +4,299 @@ import { useState } from "react"
 import { MedicalSidebar } from "@/components/medical-sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, UserPlus, Bell, Mail } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
+import { ChevronLeft, ChevronRight, Search, Upload, FileText, MoreHorizontal } from "lucide-react"
 
-const partners = [
+interface Resource {
+  id: number
+  name: string
+  type: "PNG" | "PDF" | "DOC" | "JPG"
+  groups: string
+  imageUrl?: string
+  selected: boolean
+}
+
+const resources: Resource[] = [
   {
     id: 1,
-    name: "Robert California",
-    email: "robert@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:29 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
+    name: "Integrations",
+    type: "PNG",
+    groups: "All groups",
+    imageUrl: "/api/placeholder/280/200",
+    selected: false
   },
   {
     id: 2,
-    name: "Adrian Monk",
-    email: "monk@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:28 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
+    name: "Dashboard",
+    type: "PNG",
+    groups: "All groups",
+    imageUrl: "/api/placeholder/280/200",
+    selected: false
   },
   {
     id: 3,
-    name: "Dale Mike",
-    email: "dalemike@email.com",
-    signupDate: "February 25, 2025",
-    signupTime: "04:41 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 4,
-    name: "Richard Hendricks",
-    email: "richard@piedpiper.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:55 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Creed Bratton",
-    email: "creed@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 2,
-    customers: 3,
-    status: "Active",
-  },
-  {
-    id: 6,
-    name: "Toby Flenderson",
-    email: "toby@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 7,
-    name: "Jim Halpert",
-    email: "jim@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 1028.0,
-    earnings: 565.4,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 8,
-    name: "Kevin Malone",
-    email: "kevin@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 499.83,
-    earnings: 274.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 9,
-    name: "Andy Bernard",
-    email: "andy@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 198.0,
-    earnings: 108.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 10,
-    name: "Dwight Schrute",
-    email: "dwight@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:52 PM",
-    revenue: 99.0,
-    earnings: 54.45,
-    clicks: 0,
-    leads: 2,
-    customers: 1,
-    status: "Active",
-  },
-  {
-    id: 11,
-    name: "Michael Scott",
-    email: "michael@dundermifflin.com",
-    signupDate: "February 24, 2025",
-    signupTime: "02:15 PM",
-    revenue: 250.0,
-    earnings: 137.5,
-    clicks: 0,
-    leads: 1,
-    customers: 1,
-    status: "Pending",
-  },
+    name: "Brand Mark",
+    type: "PNG",
+    groups: "All groups",
+    imageUrl: "/api/placeholder/280/200",
+    selected: false
+  }
 ]
 
 export default function ResourcesPage() {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState("Active")
+  const [activeTab, setActiveTab] = useState("files")
   const [searchQuery, setSearchQuery] = useState("")
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [selectedResources, setSelectedResources] = useState<number[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const filteredPartners = partners.filter((partner) => {
-    const matchesStatus = statusFilter === "All" || partner.status === statusFilter
-    const matchesSearch =
-        searchQuery === "" ||
-        partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        partner.email.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
+  const filteredResources = resources.filter((resource) => {
+    return searchQuery === "" ||
+        resource.name.toLowerCase().includes(searchQuery.toLowerCase())
   })
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredPartners.length / rowsPerPage)
-  const startIndex = (currentPage - 1) * rowsPerPage
-  const endIndex = startIndex + rowsPerPage
-  const currentPartners = filteredPartners.slice(startIndex, endIndex)
+  const totalItems = filteredResources.length
+  const itemsPerPage = 12
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
 
-  const activeCount = partners.filter((p) => p.status === "Active").length
-  const pendingCount = partners.filter((p) => p.status === "Pending").length
-  const invitedCount = partners.filter((p) => p.status === "Invited").length
-  const otherCount = partners.filter((p) => !["Active", "Pending", "Invited"].includes(p.status)).length
+  const handleSelectResource = (resourceId: number) => {
+    setSelectedResources(prev =>
+        prev.includes(resourceId)
+            ? prev.filter(id => id !== resourceId)
+            : [...prev, resourceId]
+    )
+  }
 
-  const formatCurrency = (amount: number) => {
-    return amount === 0 ? "$0.00" : `$${amount.toFixed(2)}`
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedResources(filteredResources.map(r => r.id))
+    } else {
+      setSelectedResources([])
+    }
+  }
+
+  const getFileTypeColor = (type: string) => {
+    switch (type) {
+      case "PNG":
+        return "bg-green-100 text-green-800"
+      case "PDF":
+        return "bg-red-100 text-red-800"
+      case "DOC":
+        return "bg-blue-100 text-blue-800"
+      case "JPG":
+        return "bg-orange-100 text-orange-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
   }
 
   return (
       <div className="flex h-screen bg-background">
-        {/* Sidebar */}
         <MedicalSidebar />
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <header className="bg-background border-b border-border">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center flex-1 max-w-2xl gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search affiliates, customers, payouts..."
-                        className="pl-10 bg-muted/50"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full"></span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Mail className="h-5 w-5" />
-                  </Button>
-                  <Select defaultValue="30">
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">Last 7 days</SelectItem>
-                      <SelectItem value="30">Last 30 days</SelectItem>
-                      <SelectItem value="90">Last 90 days</SelectItem>
-                      <SelectItem value="365">Last 365 days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+          <header className="flex items-center justify-between p-6 border-b border-border">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-semibold"></h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4 mr-2"/>
+                Upload file
+              </Button>
+              <Button variant="outline" size="sm">
+                <FileText className="h-4 w-4 mr-2"/>
+                Create document
+              </Button>
             </div>
           </header>
 
-          {/* Page Content */}
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold tracking-tight">Resources</h1>
+              </div>
               <div className="space-y-6">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Resources</h1>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create partner
-                    </Button>
-                    <Button variant="outline">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Invite partner
-                    </Button>
+                {/* Tabs Navigation */}
+                <div className="flex gap-1 border-b">
+                  <Button
+                      variant={activeTab === "files" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("files")}
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                  >
+                    Files (3)
+                  </Button>
+                  <Button
+                      variant={activeTab === "documents" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setActiveTab("documents")}
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary text-muted-foreground"
+                  >
+                    Documents (Coming soon!)
+                  </Button>
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex items-center gap-4">
+                  <div className="relative flex-1 max-w-md">
+                    <Search
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"/>
+                    <Input
+                        placeholder="Search by file name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                    />
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-1 border-b">
-                    <Button
-                        variant={statusFilter === "Active" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Active")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Active ({activeCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Pending" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Pending")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Pending ({pendingCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Invited" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Invited")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Invited ({invitedCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Other" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Other")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Other ({otherCount})
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                          placeholder="Search by partner name, email or link parameter..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filters
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Actions
-                        <MoreHorizontal className="h-4 w-4 ml-2" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h2 className="text-lg font-medium">Active partners</h2>
-
-                  <div className="border rounded-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">
-                            <input type="checkbox" className="rounded" />
-                          </TableHead>
-                          <TableHead>Signed up at</TableHead>
-                          <TableHead>Partner</TableHead>
-                          <TableHead>Revenue</TableHead>
-                          <TableHead>Earnings</TableHead>
-                          <TableHead>Clicks</TableHead>
-                          <TableHead>Leads</TableHead>
-                          <TableHead>Customers</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {currentPartners.map((partner) => (
-                            <TableRow key={partner.id}>
-                              <TableCell>
-                                <input type="checkbox" className="rounded" />
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                <div>{partner.signupDate}</div>
-                                <div>{partner.signupTime}</div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="space-y-1">
-                                  <div className="font-medium text-primary hover:underline cursor-pointer">{partner.name}</div>
-                                  <div className="text-sm text-muted-foreground">{partner.email}</div>
+                {/* Content */}
+                {activeTab === "files" && (
+                    <div className="space-y-6">
+                      {/* Files Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredResources.map((resource) => (
+                            <div key={resource.id} className="group relative">
+                              <div className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                                {/* Checkbox */}
+                                <div className="absolute top-3 left-3 z-10">
+                                  <Checkbox
+                                      checked={selectedResources.includes(resource.id)}
+                                      onCheckedChange={() => handleSelectResource(resource.id)}
+                                      className="bg-white shadow-sm"
+                                  />
                                 </div>
-                              </TableCell>
-                              <TableCell>{formatCurrency(partner.revenue)}</TableCell>
-                              <TableCell>{formatCurrency(partner.earnings)}</TableCell>
-                              <TableCell>{partner.clicks}</TableCell>
-                              <TableCell>{partner.leads}</TableCell>
-                              <TableCell>{partner.customers}</TableCell>
-                            </TableRow>
+
+                                {/* More Options */}
+                                <div
+                                    className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 bg-white shadow-sm">
+                                    <MoreHorizontal className="h-4 w-4"/>
+                                  </Button>
+                                </div>
+
+                                {/* Image/Preview */}
+                                <div
+                                    className="aspect-[4/3] bg-gradient-to-br from-green-200 to-green-300 flex items-center justify-center">
+                                  {resource.name === "Integrations" && (
+                                      <div className="grid grid-cols-2 gap-2 p-6">
+                                        <div
+                                            className="bg-gray-800 rounded p-2 text-white text-xs text-center">integra
+                                        </div>
+                                        <div
+                                            className="bg-green-600 rounded p-2 text-white text-xs text-center flex items-center justify-center">
+                                          <div className="w-4 h-4 bg-white rounded-sm"></div>
+                                        </div>
+                                        <div className="bg-gray-700 rounded p-2 text-white text-xs text-center">paddle
+                                        </div>
+                                        <div className="bg-black rounded p-2 text-white text-xs text-center">stripe
+                                        </div>
+                                      </div>
+                                  )}
+                                  {resource.name === "Dashboard" && (
+                                      <div className="p-4 w-full">
+                                        <div className="bg-white rounded p-2 text-xs">
+                                          <div className="space-y-1">
+                                            <div className="h-2 bg-gray-200 rounded"></div>
+                                            <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+                                            <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+                                          </div>
+                                          <div className="mt-2 text-center text-green-600 font-bold">
+                                            Ditch the manual tracking,<br/>
+                                            say hello to real-time insights
+                                          </div>
+                                        </div>
+                                      </div>
+                                  )}
+                                  {resource.name === "Brand Mark" && (
+                                      <div className="flex items-center justify-center">
+                                        <div className="flex">
+                                          <div className="w-8 h-12 bg-gray-800 rounded-l-full"></div>
+                                          <div className="w-8 h-12 bg-gray-600 rounded-r-full"></div>
+                                        </div>
+                                      </div>
+                                  )}
+                                </div>
+
+                                {/* File Info */}
+                                <div className="p-4">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-muted-foreground">{resource.groups}</span>
+                                    <Button variant="ghost" size="sm"
+                                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <MoreHorizontal className="h-4 w-4"/>
+                                    </Button>
+                                  </div>
+
+                                  <h3 className="font-medium text-base mb-2">{resource.name}</h3>
+
+                                  <Badge
+                                      variant="secondary"
+                                      className={`text-xs ${getFileTypeColor(resource.type)}`}
+                                  >
+                                    {resource.type}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
                         ))}
-                        {currentPartners.length === 0 && (
-                            <TableRow>
-                              <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                                No partners found
-                              </TableCell>
-                            </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
+                      </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                      <ChevronLeft className="h-4 w-4" />
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
+                      {filteredResources.length === 0 && (
+                          <div className="text-center py-12">
+                            <div className="max-w-md mx-auto">
+                              <h3 className="text-lg font-medium mb-2">No files found</h3>
+                              <p className="text-muted-foreground mb-4">
+                                Try adjusting your search or upload your first file.
+                              </p>
+                              <Button>
+                                <Upload className="h-4 w-4 mr-2"/>
+                                Upload file
+                              </Button>
+                            </div>
+                          </div>
+                      )}
 
-                    <span className="text-sm text-muted-foreground px-2">
-                    {currentPage} of {totalPages}
-                  </span>
+                      {/* Pagination */}
+                      {totalItems > 0 && (
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                disabled={currentPage === 1}
+                            >
+                              <ChevronLeft className="h-4 w-4"/>
+                            </Button>
 
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+                            <span className="text-sm text-muted-foreground px-2">
+                                                1 of 1
+                                            </span>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Rows per page:</span>
-                    <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
-                      <SelectTrigger className="w-16">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                disabled={currentPage === totalPages}
+                            >
+                              <ChevronRight className="h-4 w-4"/>
+                            </Button>
+                          </div>
+                      )}
+                    </div>
+                )}
+
+                {activeTab === "documents" && (
+                    <div className="text-center py-12">
+                      <div className="max-w-md mx-auto">
+                        <h3 className="text-lg font-medium mb-2">Coming Soon</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Document management functionality will be available soon.
+                        </p>
+                      </div>
+                    </div>
+                )}
               </div>
             </div>
           </main>
