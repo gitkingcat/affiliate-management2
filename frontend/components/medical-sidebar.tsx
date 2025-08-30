@@ -27,6 +27,7 @@ const navigationItems = [
     { icon: ShoppingCart, label: "Customers", href: "/customers" },
     { icon: DollarSign, label: "Payouts", href: "/payouts" },
     { icon: Settings2, label: "Program Settings", href: "/program-settings" },
+    { icon: Settings2, label: "Flows", href: "/flows" },
     { icon: MailIcon, label: "Emails", href: "/emails" },
     { icon: Box, label: "Resources", href: "/resources" },
     { icon: FileBarChart, label: "Reports", href: "/reports" }

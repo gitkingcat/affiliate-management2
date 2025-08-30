@@ -4,428 +4,301 @@ import { useState } from "react"
 import { MedicalSidebar } from "@/components/medical-sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, UserPlus, Bell, Mail } from "lucide-react"
-
-const partners = [
-  {
-    id: 1,
-    name: "Robert California",
-    email: "robert@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:29 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Adrian Monk",
-    email: "monk@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:28 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Dale Mike",
-    email: "dalemike@email.com",
-    signupDate: "February 25, 2025",
-    signupTime: "04:41 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 4,
-    name: "Richard Hendricks",
-    email: "richard@piedpiper.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:55 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Creed Bratton",
-    email: "creed@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 2,
-    customers: 3,
-    status: "Active",
-  },
-  {
-    id: 6,
-    name: "Toby Flenderson",
-    email: "toby@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 7,
-    name: "Jim Halpert",
-    email: "jim@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 1028.0,
-    earnings: 565.4,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 8,
-    name: "Kevin Malone",
-    email: "kevin@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 499.83,
-    earnings: 274.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 9,
-    name: "Andy Bernard",
-    email: "andy@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 198.0,
-    earnings: 108.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 10,
-    name: "Dwight Schrute",
-    email: "dwight@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:52 PM",
-    revenue: 99.0,
-    earnings: 54.45,
-    clicks: 0,
-    leads: 2,
-    customers: 1,
-    status: "Active",
-  },
-  {
-    id: 11,
-    name: "Michael Scott",
-    email: "michael@dundermifflin.com",
-    signupDate: "February 24, 2025",
-    signupTime: "02:15 PM",
-    revenue: 250.0,
-    earnings: 137.5,
-    clicks: 0,
-    leads: 1,
-    customers: 1,
-    status: "Pending",
-  },
-]
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { ExternalLink, Plus, MoreHorizontal } from "lucide-react"
 
 export default function ProgramSettingsPage() {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState("Active")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [activeTab, setActiveTab] = useState("general")
+  const [showCustomFields, setShowCustomFields] = useState(true)
+  const [customFieldsEnabled, setCustomFieldsEnabled] = useState(true)
 
-  const filteredPartners = partners.filter((partner) => {
-    const matchesStatus = statusFilter === "All" || partner.status === statusFilter
-    const matchesSearch =
-        searchQuery === "" ||
-        partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        partner.email.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
+  const tabs = [
+    { id: "general", label: "General settings" },
+    { id: "partner-experience", label: "Partner experience" },
+    { id: "marketing", label: "Marketing and tracking" },
+    { id: "partner-groups", label: "Partner groups" },
+    { id: "custom-domains", label: "Custom domains" }
+  ]
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredPartners.length / rowsPerPage)
-  const startIndex = (currentPage - 1) * rowsPerPage
-  const endIndex = startIndex + rowsPerPage
-  const currentPartners = filteredPartners.slice(startIndex, endIndex)
+  const renderGeneralSettings = () => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Program details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="program-id">Program ID</Label>
+                <Input
+                    id="program-id"
+                    value="598f3ba9-b1b8-4bb8-ba78-4ed3c6375cec"
+                    readOnly
+                    className="bg-muted"
+                />
+              </div>
 
-  const activeCount = partners.filter((p) => p.status === "Active").length
-  const pendingCount = partners.filter((p) => p.status === "Pending").length
-  const invitedCount = partners.filter((p) => p.status === "Invited").length
-  const otherCount = partners.filter((p) => !["Active", "Pending", "Invited"].includes(p.status)).length
+              <div className="space-y-2">
+                <Label htmlFor="product-name">Product name</Label>
+                <div className="flex gap-2">
+                  <Input id="product-name" value="DunderMifflin" />
+                  <Button variant="outline" size="sm">Update product name</Button>
+                </div>
+              </div>
 
-  const formatCurrency = (amount: number) => {
-    return amount === 0 ? "$0.00" : `$${amount.toFixed(2)}`
+              <div className="space-y-2">
+                <Label htmlFor="program-name">Partner program name</Label>
+                <div className="flex gap-2">
+                  <Input id="program-name" value="Demo Partner Program" />
+                  <Button variant="outline" size="sm">Update program name</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website-url">Website URL</Label>
+                <div className="flex gap-2">
+                  <Input id="website-url" value="https://tolt.io" />
+                  <Button variant="outline" size="sm">Update website URL</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currency">Program currency</Label>
+                <div className="flex gap-2">
+                  <Input id="currency" value="USD (United States dollar)" />
+                  <Button variant="outline" size="sm">Update currency</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="program-type">Program type</Label>
+                <div className="flex gap-2">
+                  <Input id="program-type" value="Public" />
+                  <Button variant="outline" size="sm">Update program type</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="subdomain">Portal subdomain</Label>
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-1">
+                    <Input id="subdomain" value="demoprogram.tolt.io" className="flex-1" />
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <Button variant="outline" size="sm">Update subdomain</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="terms-of-service">Terms of Service</Label>
+                <div className="flex gap-2">
+                  <Input id="terms-of-service" value="https://tolt.io/terms-of-service" />
+                  <Button variant="outline" size="sm">Update ToS link</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Payout details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="min-payout">Minimum payout threshold</Label>
+                <div className="flex gap-2">
+                  <Input id="min-payout" value="$99.00" />
+                  <Button variant="outline" size="sm">Update threshold</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payout-term">Payout term</Label>
+                <div className="flex gap-2">
+                  <Input id="payout-term" value="NET-15" />
+                  <Button variant="outline" size="sm">Update payout term</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payout-methods">Payout methods</Label>
+                <div className="flex gap-2">
+                  <Input id="payout-methods" value="PayPal, Wise, Wire/SWIFT, Local Bank, Crypto" />
+                  <Button variant="outline" size="sm">Manage methods</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="crypto-tokens">Crypto tokens</Label>
+                <div className="flex gap-2">
+                  <Input id="crypto-tokens" value="BTC, ETH, SOL, ADA, USDT" />
+                  <Button variant="outline" size="sm">Manage tokens</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Custom fields</CardTitle>
+              <CardDescription>
+                Learn more.    * indicates that the field is required
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="custom-fields-toggle">Show custom fields in the partner sign-up flow</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">ON</Badge>
+                    <span className="text-sm text-muted-foreground">1 CUSTOM FIELDS</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                      id="custom-fields-toggle"
+                      checked={customFieldsEnabled}
+                      onCheckedChange={setCustomFieldsEnabled}
+                  />
+                  <Button variant="outline" size="sm">Add custom field</Button>
+                </div>
+              </div>
+
+              {customFieldsEnabled && (
+                  <div className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1 text-sm">
+                        <span className="text-muted-foreground">Single answer *</span>
+                      </div>
+                    </div>
+                    <div className="pl-4">
+                      <Input
+                          value="Where will you promote Tolt?"
+                          className="mb-2"
+                      />
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+  )
+
+  const renderPartnerExperience = () => (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Partner Portal Settings</CardTitle>
+            <CardDescription>Configure the partner experience and portal settings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Partner experience settings will be configured here.</p>
+          </CardContent>
+        </Card>
+      </div>
+  )
+
+  const renderMarketingAndTracking = () => (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Marketing and Tracking</CardTitle>
+            <CardDescription>Set up tracking pixels and marketing integrations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Marketing and tracking settings will be configured here.</p>
+          </CardContent>
+        </Card>
+      </div>
+  )
+
+  const renderPartnerGroups = () => (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Partner Groups</CardTitle>
+            <CardDescription>Organize partners into groups with different commission structures</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Partner groups will be managed here.</p>
+          </CardContent>
+        </Card>
+      </div>
+  )
+
+  const renderCustomDomains = () => (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Custom Domains</CardTitle>
+            <CardDescription>Configure custom domains for your partner portal</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">Custom domain settings will be configured here.</p>
+          </CardContent>
+        </Card>
+      </div>
+  )
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "general":
+        return renderGeneralSettings()
+      case "partner-experience":
+        return renderPartnerExperience()
+      case "marketing":
+        return renderMarketingAndTracking()
+      case "partner-groups":
+        return renderPartnerGroups()
+      case "custom-domains":
+        return renderCustomDomains()
+      default:
+        return renderGeneralSettings()
+    }
   }
 
   return (
       <div className="flex h-screen bg-background">
-        {/* Sidebar */}
         <MedicalSidebar />
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <header className="bg-background border-b border-border">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center flex-1 max-w-2xl gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search affiliates, customers, payouts..."
-                        className="pl-10 bg-muted/50"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full"></span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Mail className="h-5 w-5" />
-                  </Button>
-                  <Select defaultValue="30">
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">Last 7 days</SelectItem>
-                      <SelectItem value="30">Last 30 days</SelectItem>
-                      <SelectItem value="90">Last 90 days</SelectItem>
-                      <SelectItem value="365">Last 365 days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+          <header className="flex items-center justify-between p-6 border-b border-border">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-semibold">Program settings</h1>
             </div>
           </header>
 
-          {/* Page Content */}
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">
               <div className="space-y-6">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Program Settings</h1>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create partner
-                    </Button>
-                    <Button variant="outline">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Invite partner
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-1 border-b">
-                    <Button
-                        variant={statusFilter === "Active" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Active")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Active ({activeCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Pending" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Pending")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Pending ({pendingCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Invited" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Invited")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Invited ({invitedCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Other" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Other")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Other ({otherCount})
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                          placeholder="Search by partner name, email or link parameter..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filters
+                {/* Tabs Navigation */}
+                <div className="flex gap-1 border-b">
+                  {tabs.map((tab) => (
+                      <Button
+                          key={tab.id}
+                          variant={activeTab === tab.id ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => setActiveTab(tab.id)}
+                          className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                      >
+                        {tab.label}
                       </Button>
-                      <Button variant="outline" size="sm">
-                        Actions
-                        <MoreHorizontal className="h-4 w-4 ml-2" />
-                      </Button>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="space-y-4">
-                  <h2 className="text-lg font-medium">Active partners</h2>
-
-                  <div className="border rounded-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">
-                            <input type="checkbox" className="rounded" />
-                          </TableHead>
-                          <TableHead>Signed up at</TableHead>
-                          <TableHead>Partner</TableHead>
-                          <TableHead>Revenue</TableHead>
-                          <TableHead>Earnings</TableHead>
-                          <TableHead>Clicks</TableHead>
-                          <TableHead>Leads</TableHead>
-                          <TableHead>Customers</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {currentPartners.map((partner) => (
-                            <TableRow key={partner.id}>
-                              <TableCell>
-                                <input type="checkbox" className="rounded" />
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                <div>{partner.signupDate}</div>
-                                <div>{partner.signupTime}</div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="space-y-1">
-                                  <div className="font-medium text-primary hover:underline cursor-pointer">{partner.name}</div>
-                                  <div className="text-sm text-muted-foreground">{partner.email}</div>
-                                </div>
-                              </TableCell>
-                              <TableCell>{formatCurrency(partner.revenue)}</TableCell>
-                              <TableCell>{formatCurrency(partner.earnings)}</TableCell>
-                              <TableCell>{partner.clicks}</TableCell>
-                              <TableCell>{partner.leads}</TableCell>
-                              <TableCell>{partner.customers}</TableCell>
-                            </TableRow>
-                        ))}
-                        {currentPartners.length === 0 && (
-                            <TableRow>
-                              <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                                No partners found
-                              </TableCell>
-                            </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                      <ChevronLeft className="h-4 w-4" />
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-
-                    <span className="text-sm text-muted-foreground px-2">
-                    {currentPage} of {totalPages}
-                  </span>
-
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Rows per page:</span>
-                    <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
-                      <SelectTrigger className="w-16">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                {/* Tab Content */}
+                {renderTabContent()}
               </div>
             </div>
           </main>

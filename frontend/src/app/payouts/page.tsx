@@ -6,424 +6,353 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, UserPlus, Bell, Mail } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, Upload, X } from "lucide-react"
 
-const partners = [
+interface Payout {
+  id: number
+  createdAt: string
+  partnerName: string
+  partnerEmail: string
+  method: string
+  commissionPeriod: string
+  amount: number
+  status: "Pending" | "Paid"
+}
+
+const payouts: Payout[] = [
   {
     id: 1,
-    name: "Robert California",
-    email: "robert@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:29 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
+    createdAt: "February 25, 2025 04:24 PM",
+    partnerName: "Kevin Malone",
+    partnerEmail: "kevin@email.com",
+    method: "PayPal",
+    commissionPeriod: "2024-09-30 - 2025-02-25",
+    amount: 274.90,
+    status: "Pending"
   },
   {
     id: 2,
-    name: "Adrian Monk",
-    email: "monk@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:28 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
+    createdAt: "February 25, 2025 04:24 PM",
+    partnerName: "Jim Halpert",
+    partnerEmail: "jim@email.com",
+    method: "PayPal",
+    commissionPeriod: "2024-09-30 - 2025-02-25",
+    amount: 585.40,
+    status: "Pending"
   },
   {
     id: 3,
-    name: "Dale Mike",
-    email: "dalemike@email.com",
-    signupDate: "February 25, 2025",
-    signupTime: "04:41 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
+    createdAt: "February 24, 2025 02:15 PM",
+    partnerName: "Pam Beesly",
+    partnerEmail: "pam@email.com",
+    method: "Bank Transfer",
+    commissionPeriod: "2024-08-30 - 2025-01-25",
+    amount: 423.75,
+    status: "Paid"
   },
   {
     id: 4,
-    name: "Richard Hendricks",
-    email: "richard@piedpiper.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:55 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Creed Bratton",
-    email: "creed@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 2,
-    customers: 3,
-    status: "Active",
-  },
-  {
-    id: 6,
-    name: "Toby Flenderson",
-    email: "toby@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 7,
-    name: "Jim Halpert",
-    email: "jim@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 1028.0,
-    earnings: 565.4,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 8,
-    name: "Kevin Malone",
-    email: "kevin@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 499.83,
-    earnings: 274.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 9,
-    name: "Andy Bernard",
-    email: "andy@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 198.0,
-    earnings: 108.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 10,
-    name: "Dwight Schrute",
-    email: "dwight@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:52 PM",
-    revenue: 99.0,
-    earnings: 54.45,
-    clicks: 0,
-    leads: 2,
-    customers: 1,
-    status: "Active",
-  },
-  {
-    id: 11,
-    name: "Michael Scott",
-    email: "michael@dundermifflin.com",
-    signupDate: "February 24, 2025",
-    signupTime: "02:15 PM",
-    revenue: 250.0,
-    earnings: 137.5,
-    clicks: 0,
-    leads: 1,
-    customers: 1,
-    status: "Pending",
-  },
+    createdAt: "February 23, 2025 10:30 AM",
+    partnerName: "Dwight Schrute",
+    partnerEmail: "dwight@email.com",
+    method: "PayPal",
+    commissionPeriod: "2024-08-15 - 2025-01-15",
+    amount: 892.30,
+    status: "Paid"
+  }
 ]
 
 export default function PayoutsPage() {
   const [currentPage, setCurrentPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState("Active")
   const [searchQuery, setSearchQuery] = useState("")
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [selectedPayouts, setSelectedPayouts] = useState<number[]>([])
+  const [activeTab, setActiveTab] = useState("pending")
+  const [showInfoBanner, setShowInfoBanner] = useState(true)
 
-  const filteredPartners = partners.filter((partner) => {
-    const matchesStatus = statusFilter === "All" || partner.status === statusFilter
+  const filteredPayouts = payouts.filter((payout) => {
     const matchesSearch =
         searchQuery === "" ||
-        partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        partner.email.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
+        payout.partnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        payout.partnerEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        payout.id.toString().includes(searchQuery)
+
+    const matchesTab =
+        activeTab === "pending" ? payout.status === "Pending" :
+            activeTab === "paid" ? payout.status === "Paid" : true
+
+    return matchesSearch && matchesTab
   })
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredPartners.length / rowsPerPage)
+  const pendingPayouts = payouts.filter(p => p.status === "Pending")
+  const paidPayouts = payouts.filter(p => p.status === "Paid")
+
+  const totalPages = Math.ceil(filteredPayouts.length / rowsPerPage)
   const startIndex = (currentPage - 1) * rowsPerPage
   const endIndex = startIndex + rowsPerPage
-  const currentPartners = filteredPartners.slice(startIndex, endIndex)
-
-  const activeCount = partners.filter((p) => p.status === "Active").length
-  const pendingCount = partners.filter((p) => p.status === "Pending").length
-  const invitedCount = partners.filter((p) => p.status === "Invited").length
-  const otherCount = partners.filter((p) => !["Active", "Pending", "Invited"].includes(p.status)).length
+  const currentPayouts = filteredPayouts.slice(startIndex, endIndex)
 
   const formatCurrency = (amount: number) => {
-    return amount === 0 ? "$0.00" : `$${amount.toFixed(2)}`
+    return `$${amount.toFixed(2)}`
+  }
+
+  const getStatusBadge = (status: string) => {
+    return (
+        <Badge
+            variant={status === "Pending" ? "default" : "secondary"}
+            className={status === "Pending" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-100 text-green-800"}
+        >
+          {status}
+        </Badge>
+    )
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedPayouts(currentPayouts.map(p => p.id))
+    } else {
+      setSelectedPayouts([])
+    }
+  }
+
+  const handleSelectPayout = (payoutId: number) => {
+    setSelectedPayouts(prev =>
+        prev.includes(payoutId)
+            ? prev.filter(id => id !== payoutId)
+            : [...prev, payoutId]
+    )
   }
 
   return (
       <div className="flex h-screen bg-background">
-        {/* Sidebar */}
         <MedicalSidebar />
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <header className="bg-background border-b border-border">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center flex-1 max-w-2xl gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search affiliates, customers, payouts..."
-                        className="pl-10 bg-muted/50"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full"></span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Mail className="h-5 w-5" />
-                  </Button>
-                  <Select defaultValue="30">
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">Last 7 days</SelectItem>
-                      <SelectItem value="30">Last 30 days</SelectItem>
-                      <SelectItem value="90">Last 90 days</SelectItem>
-                      <SelectItem value="365">Last 365 days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+          <header className="flex items-center justify-between p-6 border-b border-border">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-semibold">Payouts</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4 mr-2" />
+                Upload payouts
+              </Button>
+              <Button size="sm">
+                Generate payouts
+              </Button>
             </div>
           </header>
 
-          {/* Page Content */}
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">
-              <div className="space-y-6">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Payouts</h1>
+              {showInfoBanner && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
+                    <button
+                        onClick={() => setShowInfoBanner(false)}
+                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <h3 className="font-semibold mb-2">What are Payouts?</h3>
+                    <p className="text-sm text-gray-700">
+                      Payouts are automatically generated on a NET-15 basis, meaning 15 days after the end of each month. For example, commissions earned in September will have payouts generated on October 15th. You can also manually generate payouts at any time using the 'Generate Payouts' button.
+                      <a href="#" className="text-blue-600 hover:underline ml-1">Learn more.</a>
+                    </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create partner
-                    </Button>
-                    <Button variant="outline">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Invite partner
-                    </Button>
-                  </div>
+              )}
+
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-1 border-b">
+                  <Button
+                      variant={activeTab === "pending" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveTab("pending")
+                        setCurrentPage(1)
+                      }}
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                  >
+                    Pending ({pendingPayouts.length})
+                  </Button>
+                  <Button
+                      variant={activeTab === "paid" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveTab("paid")
+                        setCurrentPage(1)
+                      }}
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                  >
+                    Paid ({paidPayouts.length})
+                  </Button>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-1 border-b">
-                    <Button
-                        variant={statusFilter === "Active" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Active")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Active ({activeCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Pending" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Pending")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Pending ({pendingCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Invited" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Invited")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Invited ({invitedCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Other" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Other")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Other ({otherCount})
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                       <Input
-                          placeholder="Search by partner name, email or link parameter..."
+                          placeholder="Search by partner name, email, or payout ID..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10"
+                          className="pl-10 w-80"
                       />
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filters
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Actions
-                        <MoreHorizontal className="h-4 w-4 ml-2" />
-                      </Button>
-                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filters
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Export
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Mark as paid
+                    </Button>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h2 className="text-lg font-medium">Active partners</h2>
-
-                  <div className="border rounded-lg">
+                <div className="border rounded-lg">
+                  <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-12">
-                            <input type="checkbox" className="rounded" />
+                            <Checkbox
+                                checked={selectedPayouts.length === currentPayouts.length && currentPayouts.length > 0}
+                                onCheckedChange={handleSelectAll}
+                            />
                           </TableHead>
-                          <TableHead>Signed up at</TableHead>
+                          <TableHead>Created at</TableHead>
                           <TableHead>Partner</TableHead>
-                          <TableHead>Revenue</TableHead>
-                          <TableHead>Earnings</TableHead>
-                          <TableHead>Clicks</TableHead>
-                          <TableHead>Leads</TableHead>
-                          <TableHead>Customers</TableHead>
+                          <TableHead>Method</TableHead>
+                          <TableHead>Commission period</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="w-12"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {currentPartners.map((partner) => (
-                            <TableRow key={partner.id}>
+                        {currentPayouts.map((payout) => (
+                            <TableRow key={payout.id}>
                               <TableCell>
-                                <input type="checkbox" className="rounded" />
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                <div>{partner.signupDate}</div>
-                                <div>{partner.signupTime}</div>
+                                <Checkbox
+                                    checked={selectedPayouts.includes(payout.id)}
+                                    onCheckedChange={() => handleSelectPayout(payout.id)}
+                                />
                               </TableCell>
                               <TableCell>
-                                <div className="space-y-1">
-                                  <div className="font-medium text-primary hover:underline cursor-pointer">{partner.name}</div>
-                                  <div className="text-sm text-muted-foreground">{partner.email}</div>
+                                <div className="text-sm">
+                                  {payout.createdAt}
                                 </div>
                               </TableCell>
-                              <TableCell>{formatCurrency(partner.revenue)}</TableCell>
-                              <TableCell>{formatCurrency(partner.earnings)}</TableCell>
-                              <TableCell>{partner.clicks}</TableCell>
-                              <TableCell>{partner.leads}</TableCell>
-                              <TableCell>{partner.customers}</TableCell>
+                              <TableCell>
+                                <div>
+                                  <a href="#" className="text-blue-600 hover:underline font-medium">
+                                    {payout.partnerName}
+                                  </a>
+                                  <div className="text-sm text-muted-foreground">
+                                    {payout.partnerEmail}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <span>{payout.method}</span>
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  {payout.commissionPeriod}
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {formatCurrency(payout.amount)}
+                              </TableCell>
+                              <TableCell>
+                                {getStatusBadge(payout.status)}
+                              </TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
                             </TableRow>
                         ))}
-                        {currentPartners.length === 0 && (
+                        {currentPayouts.length === 0 && (
                             <TableRow>
                               <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                                No partners found
+                                No payouts found
                               </TableCell>
                             </TableRow>
                         )}
                       </TableBody>
                     </Table>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                      <ChevronLeft className="h-4 w-4" />
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
+                  <div className="px-6 py-4 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
 
-                    <span className="text-sm text-muted-foreground px-2">
-                    {currentPage} of {totalPages}
-                  </span>
+                        <span className="text-sm text-muted-foreground px-2">
+                                                {startIndex + 1} of {filteredPayouts.length}
+                                            </span>
 
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Rows per page:</span>
-                    <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
-                      <SelectTrigger className="w-16">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Rows per page</span>
+                        <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
+                          <SelectTrigger className="w-16">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
