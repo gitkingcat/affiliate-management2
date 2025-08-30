@@ -1,7 +1,5 @@
 package com.saas.AffiliateManagement.service;
 
-
-
 import com.saas.AffiliateManagement.exceptions.AffiliateNotFoundException;
 import com.saas.AffiliateManagement.exceptions.CommissionNotFoundException;
 import com.saas.AffiliateManagement.exceptions.InvalidCommissionDataException;
@@ -13,6 +11,7 @@ import com.saas.AffiliateManagement.models.requests.CommissionUpdateRequest;
 import com.saas.AffiliateManagement.repository.AffiliateRepository;
 import com.saas.AffiliateManagement.repository.CommissionRepository;
 import com.saas.AffiliateManagement.service.mappers.CommissionMapper;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -62,33 +61,32 @@ public class CommissionService {
             throw new AffiliateNotFoundException("Affiliate not found with ID: " + affiliateId);
         }
 
-        Page<Commission> commissionsPage = commissionRepository.findByAffiliateId(affiliateId, pageable);
+        Page<Commission> commissionsPage = commissionRepository
+                .findByAffiliateId(affiliateId, pageable);
+
         return commissionsPage.map(commissionMapper::toDto);
     }
 
     @Transactional
     public CommissionDto updateCommission(Long commissionId, CommissionUpdateRequest updateRequest) {
+        Commission commission = findCommissionById(commissionId);
+
         validateUpdateRequest(updateRequest);
 
-        Commission existingCommission = findCommissionById(commissionId);
+        commissionMapper.updateEntityFromRequest(updateRequest, commission);
+        commission.setUpdatedAt(LocalDateTime.now());
 
-        commissionMapper.updateEntityFromRequest(updateRequest, existingCommission);
-        existingCommission.setUpdatedAt(LocalDateTime.now());
-
-        Commission updatedCommission = commissionRepository.save(existingCommission);
+        Commission updatedCommission = commissionRepository.save(commission);
         log.info("Updated commission with ID: {}", commissionId);
 
         return commissionMapper.toDto(updatedCommission);
     }
 
     public BigDecimal calculateTotalCommissionForAffiliate(Long affiliateId,
-                                                           LocalDateTime startDate,
-                                                           LocalDateTime endDate) {
+                                                           LocalDateTime startDate, LocalDateTime endDate) {
         if (!affiliateRepository.existsById(affiliateId)) {
             throw new AffiliateNotFoundException("Affiliate not found with ID: " + affiliateId);
         }
-
-        validateDateRange(startDate, endDate);
 
         BigDecimal totalCommission = commissionRepository
                 .calculateTotalCommissionByAffiliateAndDateRange(affiliateId, startDate, endDate);
@@ -164,49 +162,58 @@ public class CommissionService {
         return commissionMapper.toDto(updatedCommission);
     }
 
+    public Page<CommissionDto> getFilteredCommissionsByClient(@Min(1) Long clientId,
+                                                              String status, String type, String affiliateName, String search, Pageable pageable) {
+
+        Page<Commission> commissionsPage = commissionRepository
+                .findFilteredByClient(clientId, status, type, affiliateName, search, pageable);
+
+        return commissionsPage.map(commissionMapper::toDto);
+    }
+
     private Commission findCommissionById(Long commissionId) {
         return commissionRepository.findById(commissionId)
-                .orElseThrow(() -> new CommissionNotFoundException("Commission not found with ID: " + commissionId));
+                .orElseThrow(() -> new CommissionNotFoundException(
+                        "Commission not found with ID: " + commissionId));
     }
 
     private Affiliate findAffiliateById(Long affiliateId) {
         return affiliateRepository.findById(affiliateId)
-                .orElseThrow(() -> new AffiliateNotFoundException("Affiliate not found with ID: " + affiliateId));
+                .orElseThrow(() -> new AffiliateNotFoundException(
+                        "Affiliate not found with ID: " + affiliateId));
     }
 
     private void validateCreateRequest(CommissionCreateRequest createRequest) {
-        if (createRequest.getAffiliateId() == null) {
-            throw new InvalidCommissionDataException("Affiliate ID is required");
+        if (createRequest.getAmount() != null && createRequest.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidCommissionDataException("Commission amount cannot be negative");
         }
 
-        if (createRequest.getAmount() == null || createRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidCommissionDataException("Commission amount must be greater than zero");
-        }
-
-        if (createRequest.getReferralId() == null) {
-            throw new InvalidCommissionDataException("Referral ID is required");
+        if (createRequest.getPercentage() != null &&
+                (createRequest.getPercentage().compareTo(BigDecimal.ZERO) < 0 ||
+                        createRequest.getPercentage().compareTo(new BigDecimal("100")) > 0)) {
+            throw new InvalidCommissionDataException("Commission percentage must be between 0 and 100");
         }
     }
 
     private void validateUpdateRequest(CommissionUpdateRequest updateRequest) {
-        if (updateRequest.getAmount() != null && updateRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidCommissionDataException("Commission amount must be greater than zero");
-        }
-    }
-
-    private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            throw new InvalidCommissionDataException("Start date and end date are required");
+        if (updateRequest.getAmount() != null && updateRequest.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidCommissionDataException("Commission amount cannot be negative");
         }
 
-        if (startDate.isAfter(endDate)) {
-            throw new InvalidCommissionDataException("Start date must be before end date");
+        if (updateRequest.getPercentage() != null &&
+                (updateRequest.getPercentage().compareTo(BigDecimal.ZERO) < 0 ||
+                        updateRequest.getPercentage().compareTo(new BigDecimal("100")) > 0)) {
+            throw new InvalidCommissionDataException("Commission percentage must be between 0 and 100");
+        }
+
+        if (updateRequest.getStatus() != null) {
+            validateStatus(updateRequest.getStatus());
         }
     }
 
     private void validateStatus(String status) {
         if (status == null || status.trim().isEmpty()) {
-            throw new InvalidCommissionDataException("Status is required");
+            throw new InvalidCommissionDataException("Status cannot be null or empty");
         }
 
         if (!status.matches("PENDING|PAID|CANCELLED")) {

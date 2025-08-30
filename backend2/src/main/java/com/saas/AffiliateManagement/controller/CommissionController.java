@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -179,5 +181,28 @@ public class CommissionController {
                 .markCommissionAsPaid(commissionId);
 
         return ResponseEntity.ok(paidCommission);
+    }
+
+    @GetMapping("/client/{clientId}/tab-data")
+    public ResponseEntity<Page<CommissionDto>> getCommissionsTabData(
+            @PathVariable @Min(1) Long clientId,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) int size,
+            @RequestParam(defaultValue = "earnedAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String affiliateName,
+            @RequestParam(required = false) String search) {
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<CommissionDto> commissions = commissionService
+                .getFilteredCommissionsByClient(clientId, status, type, affiliateName, search, pageable);
+
+        return ResponseEntity.ok(commissions);
     }
 }
