@@ -4,22 +4,24 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DollarSign, CreditCard, Calendar, MoreHorizontal, Eye, UserPlus } from "lucide-react"
-import { customers, commissions, transactions } from "@/src/data/customers-mock-data"
+import { transactions } from "@/src/data/customers-mock-data" // Only transactions still use mock data
 import { TabConfig, formatCurrency, formatDateTime, getStatusBadge } from "@/src/utils/customers-utils"
 
 export const customersTabConfig: TabConfig = {
     id: "customers",
-    label: `Customers (${customers.length})`,
-    data: customers,
-    searchFields: ["customerName", "customerEmail", "partnerName", "partnerEmail"],
-    searchPlaceholder: "Search by customer name, email or ID...",
+    label: "Customers", // Dynamic count will be set in component
+    data: [], // Data will be populated from API
+    searchFields: ["customerName", "customerEmail", "clientName", "clientEmail"],
+    searchPlaceholder: "Search by customer name, email, or client...",
     columns: [
         { key: "customer", header: "Customer" },
-        { key: "partner", header: "Partner" },
+        { key: "client", header: "Client/Partner" },
         { key: "totalPaid", header: "Total Paid" },
         { key: "totalCommission", header: "Commission" },
         { key: "status", header: "Status" },
         { key: "lastPurchase", header: "Last Purchase" },
+        { key: "purchaseCount", header: "Purchases" },
+        { key: "source", header: "Source" },
         { key: "actions", header: "Actions", width: "w-16" }
     ],
     actions: [
@@ -32,19 +34,19 @@ export const customersTabConfig: TabConfig = {
 
 export const commissionsTabConfig: TabConfig = {
     id: "commissions",
-    label: `Commissions (${commissions.length})`,
-    data: commissions,
-    searchFields: ["affiliateName", "affiliateEmail", "description", "referralId"],
-    searchPlaceholder: "Search by affiliate, referral ID, or description...",
+    label: "Commissions", // Dynamic count will be set in component
+    data: [], // Data will be populated from API
+    searchFields: ["customerName", "customerEmail", "clientName", "referralCode"],
+    searchPlaceholder: "Search by customer, client, or referral code...",
     columns: [
-        { key: "affiliate", header: "Affiliate" },
-        { key: "amount", header: "Amount" },
-        { key: "percentage", header: "Rate" },
-        { key: "type", header: "Type" },
+        { key: "customer", header: "Customer" },
+        { key: "client", header: "Client" },
+        { key: "totalCommission", header: "Commission Amount" },
         { key: "status", header: "Status" },
-        { key: "earnedAt", header: "Earned At" },
-        { key: "paidAt", header: "Paid At" },
-        { key: "referralId", header: "Referral" },
+        { key: "referralCode", header: "Referral Code" },
+        { key: "source", header: "Source" },
+        { key: "createdAt", header: "Date" },
+        { key: "lastPurchase", header: "Last Purchase" },
         { key: "actions", header: "Actions", width: "w-16" }
     ]
 }
@@ -70,21 +72,29 @@ export const transactionsTabConfig: TabConfig = {
 export const renderCellContent = (item: any, columnKey: string) => {
     switch (columnKey) {
         case "customer":
-        case "affiliate":
-            const nameKey = columnKey === "customer" ? "customerName" : "affiliateName"
-            const emailKey = columnKey === "customer" ? "customerEmail" : "affiliateEmail"
             return (
                 <div>
-                    <div className="font-medium">{item[nameKey]}</div>
-                    <div className="text-sm text-muted-foreground">{item[emailKey]}</div>
+                    <div className="font-medium">{item.customerName}</div>
+                    <div className="text-sm text-muted-foreground">{item.customerEmail}</div>
                 </div>
             )
 
+        case "client":
         case "partner":
+            const nameKey = columnKey === "client" ? "clientName" : "partnerName"
+            const emailKey = columnKey === "client" ? "clientEmail" : "partnerEmail"
             return (
                 <div>
-                    <div className="font-medium">{item.partnerName}</div>
-                    <div className="text-sm text-muted-foreground">{item.partnerEmail}</div>
+                    <div className="font-medium">{item[nameKey] || "N/A"}</div>
+                    <div className="text-sm text-muted-foreground">{item[emailKey] || ""}</div>
+                </div>
+            )
+
+        case "affiliate":
+            return (
+                <div>
+                    <div className="font-medium">{item.affiliateName}</div>
+                    <div className="text-sm text-muted-foreground">{item.affiliateEmail}</div>
                 </div>
             )
 
@@ -134,6 +144,25 @@ export const renderCellContent = (item: any, columnKey: string) => {
                 </div>
             )
 
+        case "lastPurchase":
+        case "lastPurchaseDate":
+            const purchaseDate = item.lastPurchaseDate || item.lastPurchase
+            return purchaseDate ? formatDateTime(purchaseDate) : "Never"
+
+        case "purchaseCount":
+            return (
+                <Badge variant="secondary" className="font-medium">
+                    {item[columnKey] || 0}
+                </Badge>
+            )
+
+        case "source":
+            return item[columnKey] ? (
+                <Badge variant="outline" className="text-xs">
+                    {item[columnKey]}
+                </Badge>
+            ) : "N/A"
+
         case "referralId":
         case "transactionId":
             return (
@@ -142,8 +171,12 @@ export const renderCellContent = (item: any, columnKey: string) => {
                 </Badge>
             )
 
-        case "lastPurchase":
-            return item[columnKey] || "N/A"
+        case "referralCode":
+            return item[columnKey] ? (
+                <Badge variant="outline" className="font-mono text-xs">
+                    {item[columnKey]}
+                </Badge>
+            ) : "N/A"
 
         case "actions":
             return (

@@ -3,6 +3,7 @@ package com.saas.AffiliateManagement.controller;
 import com.saas.AffiliateManagement.exceptions.InvalidReferralDataException;
 import com.saas.AffiliateManagement.exceptions.ReferralNotFoundException;
 import com.saas.AffiliateManagement.models.dto.ConversionRateDto;
+import com.saas.AffiliateManagement.models.dto.PaymentDto;
 import com.saas.AffiliateManagement.models.dto.ReferralCustomerDTO;
 import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.requests.ReferralCreateRequest;
@@ -440,6 +441,50 @@ public class CustomersController {
                 : customerService.getReferralCustomersByClient(clientId, pageable);
 
         return ResponseEntity.ok(customers);
+    }
+
+    /**
+     * Retrieves payment transactions for a specific client.
+     * This endpoint will replace the transactions mock data in the frontend.
+     *
+     * @param clientId the unique identifier of the client (required)
+     * @param page the page number (0-based)
+     * @param size the page size
+     * @param sortBy the field to sort by (default: createdAt)
+     * @param sortDirection the sort direction (ASC or DESC, default: DESC)
+     * @param search optional search query for filtering by affiliate name, transaction ID, or description
+     * @param status optional status filter (COMPLETED, PENDING, FAILED, PROCESSING)
+     * @param paymentMethod optional payment method filter (PayPal, Bank Transfer, Stripe)
+     * @param startDate optional start date filter for transaction creation
+     * @param endDate optional end date filter for transaction creation
+     * @return ResponseEntity containing a page of payment transaction DTOs
+     */
+    @GetMapping("/client/{clientId}/transactions")
+    public ResponseEntity<Page<PaymentDto>> getTransactionsByClient(
+            @PathVariable @Min(1) Long clientId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection,
+            @RequestParam(required = false) String search,
+            @RequestParam Optional<String> status,
+            @RequestParam Optional<String> paymentMethod,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Optional<LocalDateTime> startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Optional<LocalDateTime> endDate) {
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("ASC")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<PaymentDto> transactions = customerService.getTransactionsByClient(
+                clientId, search, status, paymentMethod, startDate, endDate, pageable
+        );
+
+        return ResponseEntity.ok(transactions);
     }
 
 

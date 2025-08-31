@@ -4,15 +4,18 @@ import com.saas.AffiliateManagement.exceptions.InvalidReferralDataException;
 import com.saas.AffiliateManagement.exceptions.ReferralNotFoundException;
 import com.saas.AffiliateManagement.models.*;
 import com.saas.AffiliateManagement.models.dto.ConversionRateDto;
+import com.saas.AffiliateManagement.models.dto.PaymentDto;
 import com.saas.AffiliateManagement.models.dto.ReferralCustomerDTO;
 import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.entity.Affiliate;
+import com.saas.AffiliateManagement.models.entity.Payment;
 import com.saas.AffiliateManagement.models.entity.Referral;
 import com.saas.AffiliateManagement.models.requests.ReferralCreateRequest;
 import com.saas.AffiliateManagement.models.requests.ReferralUpdateRequest;
 import com.saas.AffiliateManagement.models.responses.ReferralTrackingResponse;
 import com.saas.AffiliateManagement.repository.AffiliateRepository;
 
+import com.saas.AffiliateManagement.repository.PaymentRepository;
 import com.saas.AffiliateManagement.repository.ReferralRepository;
 import com.saas.AffiliateManagement.service.mappers.ReferralMapper;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final ReferralMapper referralMapper;
     private final DeviceDetector deviceDetector;
     private final GeoLocationService geoLocationService;
+    private final PaymentRepository paymentRepository;
+
 
     @Override
     public ReferralDto trackReferral(ReferralCreateRequest createRequest,
@@ -369,6 +374,42 @@ public class CustomerServiceImpl implements CustomerService {
     public Page<ReferralCustomerDTO> getReferralCustomersByClient(Long clientId, Pageable pageable) {
         return referralRepository.findByClientId(clientId, pageable)
                 .map(this::convertToDTO);
+    }
+
+    @Override
+    public Page<PaymentDto> getTransactionsByClient(
+            Long clientId,
+            String search,
+            Optional<String> status,
+            Optional<String> paymentMethod,
+            Optional<LocalDateTime> startDate,
+            Optional<LocalDateTime> endDate,
+            Pageable pageable) {
+
+        Page<Payment> paymentsPage = paymentRepository.findTransactionsByClientWithFilters(
+                clientId,
+                search,
+                status.orElse(null),
+                paymentMethod.orElse(null),
+                startDate.orElse(null),
+                endDate.orElse(null),
+                pageable
+        );
+
+        return paymentsPage.map(payment -> PaymentDto.builder()
+                .id(payment.getId())
+                .amount(payment.getAmount())
+                .currency(payment.getCurrency())
+                .paymentMethod(payment.getPaymentMethod())
+                .status(payment.getStatus())
+                .transactionId(payment.getTransactionId())
+                .description(payment.getDescription())
+                .cancellationReason(payment.getCancellationReason())
+                .processedAt(payment.getProcessedAt())
+                .createdAt(payment.getCreatedAt())
+                .updatedAt(payment.getUpdatedAt())
+                .affiliateId(payment.getAffiliate().getId())
+                .build());
     }
 
     private void validateAffiliateExists(Long affiliateId) {

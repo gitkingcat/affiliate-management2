@@ -40,4 +40,28 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "ORDER BY p.created_at DESC LIMIT :limit", nativeQuery = true)
     List<Payment> findTopByAffiliateIdOrderByCreatedAtDesc(@Param("affiliateId") Long affiliateId,
                                                            @Param("limit") int limit);
+
+    @Query("SELECT p FROM Payment p " +
+            "LEFT JOIN p.affiliate a " +
+            "WHERE p.id = :clientId " +
+            "AND (:search IS NULL OR :search = '' OR " +
+            "     LOWER(CONCAT(a.firstName, ' ', a.lastName)) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "     LOWER(a.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "     LOWER(p.transactionId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "AND (:status IS NULL OR :status = '' OR p.status = :status) " +
+            "AND (:paymentMethod IS NULL OR :paymentMethod = '' OR p.paymentMethod = :paymentMethod) " +
+            "AND (CAST(:startDate AS timestamp) IS NULL OR p.createdAt >= :startDate) " +
+            "AND (CAST(:endDate AS timestamp) IS NULL OR p.createdAt <= :endDate) " +
+            "ORDER BY p.createdAt DESC")
+    Page<Payment> findTransactionsByClientWithFilters(
+            @Param("clientId") Long clientId,
+            @Param("search") String search,
+            @Param("status") String status,
+            @Param("paymentMethod") String paymentMethod,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
 }
