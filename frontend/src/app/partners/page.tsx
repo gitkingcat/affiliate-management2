@@ -1,435 +1,438 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { MedicalSidebar } from "@/components/medical-sidebar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, UserPlus, Bell, Mail } from "lucide-react"
+import React, { useEffect, useState } from 'react';
+import { MedicalSidebar } from "@/components/medical-sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Search,
+  Bell,
+  Mail,
+  Plus,
+  Filter,
+  Download,
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  Users
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const partners = [
-  {
-    id: 1,
-    name: "Robert California",
-    email: "robert@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:29 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Adrian Monk",
-    email: "monk@email.com",
-    signupDate: "February 26, 2025",
-    signupTime: "11:28 AM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Dale Mike",
-    email: "dalemike@email.com",
-    signupDate: "February 25, 2025",
-    signupTime: "04:41 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 4,
-    name: "Richard Hendricks",
-    email: "richard@piedpiper.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:55 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Creed Bratton",
-    email: "creed@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 2,
-    customers: 3,
-    status: "Active",
-  },
-  {
-    id: 6,
-    name: "Toby Flenderson",
-    email: "toby@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 0,
-    earnings: 0,
-    clicks: 0,
-    leads: 0,
-    customers: 0,
-    status: "Active",
-  },
-  {
-    id: 7,
-    name: "Jim Halpert",
-    email: "jim@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:54 PM",
-    revenue: 1028.0,
-    earnings: 565.4,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 8,
-    name: "Kevin Malone",
-    email: "kevin@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 499.83,
-    earnings: 274.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 9,
-    name: "Andy Bernard",
-    email: "andy@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:53 PM",
-    revenue: 198.0,
-    earnings: 108.9,
-    clicks: 0,
-    leads: 2,
-    customers: 2,
-    status: "Active",
-  },
-  {
-    id: 10,
-    name: "Dwight Schrute",
-    email: "dwight@dundermifflin.com",
-    signupDate: "February 25, 2025",
-    signupTime: "03:52 PM",
-    revenue: 99.0,
-    earnings: 54.45,
-    clicks: 0,
-    leads: 2,
-    customers: 1,
-    status: "Active",
-  },
-  {
-    id: 11,
-    name: "Michael Scott",
-    email: "michael@dundermifflin.com",
-    signupDate: "February 24, 2025",
-    signupTime: "02:15 PM",
-    revenue: 250.0,
-    earnings: 137.5,
-    clicks: 0,
-    leads: 1,
-    customers: 1,
-    status: "Pending",
-  },
-]
+interface Affiliate {
+  id: number;
+  name: string;
+  email: string;
+  signupDate: string;
+  status: string;
+  revenue: number;
+  earnings: number;
+  clicks: number;
+  leads: number;
+  customers: number;
+}
+
+interface StatusCounts {
+  active: number;
+  pending: number;
+  invited: number;
+  inactive: number;
+  rejected: number;
+  total: number;
+}
+
+interface AffiliateTableResponse {
+  affiliates: Affiliate[];
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
+  statusCounts: StatusCounts;
+}
 
 export default function PartnersPage() {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState("Active")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(null);
 
-  const filteredPartners = partners.filter((partner) => {
-    const matchesStatus = statusFilter === "All" || partner.status === statusFilter
-    const matchesSearch =
-        searchQuery === "" ||
-        partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        partner.email.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
+  const clientId = 1;
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredPartners.length / rowsPerPage)
-  const startIndex = (currentPage - 1) * rowsPerPage
-  const endIndex = startIndex + rowsPerPage
-  const currentPartners = filteredPartners.slice(startIndex, endIndex)
+  useEffect(() => {
+    fetchAffiliates();
+  }, [currentPage, pageSize, statusFilter]);
 
-  const activeCount = partners.filter((p) => p.status === "Active").length
-  const pendingCount = partners.filter((p) => p.status === "Pending").length
-  const invitedCount = partners.filter((p) => p.status === "Invited").length
-  const otherCount = partners.filter((p) => !["Active", "Pending", "Invited"].includes(p.status)).length
+  const fetchAffiliates = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  const formatCurrency = (amount: number) => {
-    return amount === 0 ? "$0.00" : `$${amount.toFixed(2)}`
-  }
+      const params = new URLSearchParams({
+        clientId: clientId.toString(),
+        page: currentPage.toString(),
+        size: pageSize.toString(),
+        sort: 'signupDate,desc'
+      });
+
+      if (statusFilter !== 'ALL') {
+        params.append('status', statusFilter);
+      }
+
+      if (searchQuery) {
+        params.append('search', searchQuery);
+      }
+
+      const url = `http://localhost:8080/api/v1/affiliates/table?${params}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to fetch affiliates: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Handle the response with 'affiliates' array
+      if (data.affiliates) {
+        setAffiliates(data.affiliates || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+        setStatusCounts(data.statusCounts || null);
+      } else if (Array.isArray(data)) {
+        // Direct array response
+        setAffiliates(data);
+        setTotalPages(1);
+        setTotalElements(data.length);
+      } else {
+        // Unexpected format
+        console.error('Unexpected response format:', data);
+        setAffiliates([]);
+        setTotalPages(0);
+        setTotalElements(0);
+      }
+    } catch (err) {
+      console.error('Error fetching affiliates:', err);
+
+      // Check for CORS errors
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        console.error('Possible CORS issue. Make sure your backend allows requests from http://localhost:3000');
+        setError('Cannot connect to backend. Check if the backend is running and CORS is configured.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to load affiliates');
+      }
+
+      setAffiliates([]);
+      setTotalPages(0);
+      setTotalElements(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchAffiliates();
+  };
+
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getStatusColor = (status: string): string => {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return 'bg-green-100 text-green-800';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'INACTIVE':
+        return 'bg-gray-100 text-gray-800';
+      case 'SUSPENDED':
+        return 'bg-red-100 text-red-800';
+      case 'INVITED':
+        return 'bg-blue-100 text-blue-800';
+      case 'REJECTED':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-      <div className="flex h-screen bg-background">
-        {/* Sidebar */}
+      <div className="flex min-h-screen bg-background">
         <MedicalSidebar />
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <header className="bg-background border-b border-border">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center flex-1 max-w-2xl gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search affiliates, customers, payouts..."
-                        className="pl-10 bg-muted/50"
-                    />
-                  </div>
+        <div className="flex-1 flex flex-col">
+          <header className="bg-card border-b border-border px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl font-bold text-foreground">Partners</h1>
+                <Badge variant="secondary" className="bg-muted">
+                  {totalElements || 0} Total
+                </Badge>
+                {statusCounts && (
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-green-100 text-green-800">
+                        {statusCounts.active} Active
+                      </Badge>
+                      <Badge className="bg-yellow-100 text-yellow-800">
+                        {statusCounts.pending} Pending
+                      </Badge>
+                      {statusCounts.inactive > 0 && (
+                          <Badge className="bg-gray-100 text-gray-800">
+                            {statusCounts.inactive} Inactive
+                          </Badge>
+                      )}
+                    </div>
+                )}
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                      placeholder="Search affiliates..."
+                      className="pl-10 w-64"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full"></span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Mail className="h-5 w-5" />
-                  </Button>
-                  <Select defaultValue="30">
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">Last 7 days</SelectItem>
-                      <SelectItem value="30">Last 30 days</SelectItem>
-                      <SelectItem value="90">Last 90 days</SelectItem>
-                      <SelectItem value="365">Last 365 days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <Button onClick={handleSearch} variant="secondary">
+                  Search
+                </Button>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Partner
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Bell className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Mail className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </header>
 
-          {/* Page Content */}
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
-            <div className="container mx-auto px-6 py-8">
-              <div className="space-y-6">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Partners</h1>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create partner
-                    </Button>
-                    <Button variant="outline">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Invite partner
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-1 border-b">
-                    <Button
-                        variant={statusFilter === "Active" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Active")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Active ({activeCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Pending" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Pending")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Pending ({pendingCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Invited" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Invited")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Invited ({invitedCount})
-                    </Button>
-                    <Button
-                        variant={statusFilter === "Other" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter("Other")
-                          setCurrentPage(1)
-                        }}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                    >
-                      Other ({otherCount})
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                          placeholder="Search by partner name, email or link parameter..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filters
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Actions
-                        <MoreHorizontal className="h-4 w-4 ml-2" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h2 className="text-lg font-medium">Active partners</h2>
-
-                  <div className="border rounded-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">
-                            <input type="checkbox" className="rounded" />
-                          </TableHead>
-                          <TableHead>Signed up at</TableHead>
-                          <TableHead>Partner</TableHead>
-                          <TableHead>Revenue</TableHead>
-                          <TableHead>Earnings</TableHead>
-                          <TableHead>Clicks</TableHead>
-                          <TableHead>Leads</TableHead>
-                          <TableHead>Customers</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {currentPartners.map((partner) => (
-                            <TableRow key={partner.id}>
-                              <TableCell>
-                                <input type="checkbox" className="rounded" />
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                <div>{partner.signupDate}</div>
-                                <div>{partner.signupTime}</div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="space-y-1">
-                                  <div className="font-medium text-primary hover:underline cursor-pointer">{partner.name}</div>
-                                  <div className="text-sm text-muted-foreground">{partner.email}</div>
-                                </div>
-                              </TableCell>
-                              <TableCell>{formatCurrency(partner.revenue)}</TableCell>
-                              <TableCell>{formatCurrency(partner.earnings)}</TableCell>
-                              <TableCell>{partner.clicks}</TableCell>
-                              <TableCell>{partner.leads}</TableCell>
-                              <TableCell>{partner.customers}</TableCell>
-                            </TableRow>
-                        ))}
-                        {currentPartners.length === 0 && (
-                            <TableRow>
-                              <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                                No partners found
-                              </TableCell>
-                            </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-
+          <main className="flex-1 p-6">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center justify-between">
+                  <CardTitle>Affiliate Partners</CardTitle>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                      <ChevronLeft className="h-4 w-4" />
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 1}
+                    <Select
+                        value={statusFilter}
+                        onValueChange={(value) => {
+                          setStatusFilter(value);
+                          setCurrentPage(0);
+                        }}
                     >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-
-                    <span className="text-sm text-muted-foreground px-2">
-                    {currentPage} of {totalPages}
-                  </span>
-
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Rows per page:</span>
-                    <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
-                      <SelectTrigger className="w-16">
-                        <SelectValue />
+                      <SelectTrigger className="w-32">
+                        <SelectValue placeholder="Filter by status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="ALL">All Status</SelectItem>
+                        <SelectItem value="ACTIVE">Active</SelectItem>
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                        <SelectItem value="INVITED">Invited</SelectItem>
+                        <SelectItem value="INACTIVE">Inactive</SelectItem>
+                        <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                        <SelectItem value="REJECTED">Rejected</SelectItem>
                       </SelectContent>
                     </Select>
+                    <Button variant="outline" size="sm">
+                      <Filter className="w-4 h-4 mr-2" />
+                      More Filters
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardHeader>
+              <CardContent>
+                {error && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-600">Error: {error}</p>
+                      <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={fetchAffiliates}
+                          className="mt-2"
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                )}
+
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Revenue</TableHead>
+                        <TableHead>Earnings</TableHead>
+                        <TableHead>Clicks</TableHead>
+                        <TableHead>Leads</TableHead>
+                        <TableHead>Customers</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {loading ? (
+                          <TableRow>
+                            <TableCell colSpan={10} className="text-center py-8">
+                              <div className="flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                      ) : !affiliates || affiliates.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={10} className="text-center py-8">
+                              <div className="flex flex-col items-center">
+                                <Users className="w-12 h-12 text-muted-foreground mb-2" />
+                                <p className="text-muted-foreground">No affiliates found</p>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                      ) : (
+                          affiliates && affiliates.map((affiliate) => (
+                              <TableRow key={affiliate.id}>
+                                <TableCell className="font-medium">
+                                  {affiliate.name}
+                                </TableCell>
+                                <TableCell>{affiliate.email}</TableCell>
+                                <TableCell>
+                                  <Badge className={getStatusColor(affiliate.status)}>
+                                    {affiliate.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>{formatCurrency(affiliate.revenue)}</TableCell>
+                                <TableCell>{formatCurrency(affiliate.earnings)}</TableCell>
+                                <TableCell>{affiliate.clicks}</TableCell>
+                                <TableCell>{affiliate.leads}</TableCell>
+                                <TableCell>{affiliate.customers}</TableCell>
+                                <TableCell>{formatDate(affiliate.signupDate)}</TableCell>
+                                <TableCell>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <MoreHorizontal className="w-4 h-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                                      <DropdownMenuItem>Send Message</DropdownMenuItem>
+                                      <DropdownMenuItem className="text-red-600">
+                                        Suspend
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+                          ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {totalPages > 1 && affiliates && affiliates.length > 0 && (
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-sm text-muted-foreground">
+                        Showing {Math.min(currentPage * pageSize + 1, totalElements || 0)} to {Math.min((currentPage + 1) * pageSize, totalElements || 0)} of {totalElements || 0} results
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                            disabled={currentPage === 0}
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          Previous
+                        </Button>
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => (
+                              <Button
+                                  key={i}
+                                  variant={currentPage === i ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => setCurrentPage(i)}
+                                  className="w-8"
+                              >
+                                {i + 1}
+                              </Button>
+                          ))}
+                          {totalPages > 5 && <span className="px-2">...</span>}
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                            disabled={currentPage === totalPages - 1}
+                        >
+                          Next
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                )}
+              </CardContent>
+            </Card>
           </main>
         </div>
       </div>
-  )
+  );
 }
