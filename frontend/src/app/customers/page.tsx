@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronLeft, ChevronRight, Search, Filter, Download, Bell, Mail, X, UserPlus, Loader2 } from "lucide-react"
 import { tabConfigs, renderCellContent } from "@/src/config/customers-tab-configs"
-import { filterData } from "@/src/utils/customers-utils"
+import {filterData, TabConfig} from "@/src/utils/customers-utils"
 
 interface ReferralCustomerDTO {
     id: number
@@ -59,6 +59,7 @@ const fetchCustomers = async (
     if (search && search.trim()) {
         params.append('search', search.trim())
     }
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/v1/referrals/client/${clientId}/customers?${params}`)
 
     if (!response.ok) {
@@ -89,7 +90,7 @@ export default function CustomersPage() {
     const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null)
 
     const loadCustomers = async () => {
-        if (activeTab !== "customers") return
+        if (activeTab !== "customers" && activeTab !== "commissions") return
 
         try {
             setLoading(true)
@@ -127,7 +128,7 @@ export default function CustomersPage() {
         }
 
         const timeout = setTimeout(() => {
-            if (activeTab === "customers") {
+            if (activeTab === "customers" || activeTab === "commissions") {
                 setCurrentPage(0) // Reset to first page on search
                 loadCustomers()
             }
@@ -148,18 +149,25 @@ export default function CustomersPage() {
                 label: `Customers (${totalElements})`
             }
         }
+        if (activeTab === "commissions") {
+            return {
+                ...tabConfigs[1],
+                data: customers.filter(customer => customer.totalCommission > 0), // Filter customers with commissions
+                label: `Commissions (${customers.filter(customer => customer.totalCommission > 0).length})`
+            }
+        }
         return tabConfigs.find(tab => tab.id === activeTab) || tabConfigs[0]
     }
 
     const currentTabConfig = getCurrentTabConfig()
 
-    // For non-customers tabs, use local filtering
-    const filteredData = activeTab === "customers"
-        ? customers
+    // For customers and commissions tabs, use API data; for others, use local filtering
+    const filteredData = activeTab === "customers" || activeTab === "commissions"
+        ? currentTabConfig.data
         : filterData(currentTabConfig.data, searchQuery, currentTabConfig.searchFields)
 
-    const currentData = activeTab === "customers"
-        ? customers
+    const currentData = activeTab === "customers" || activeTab === "commissions"
+        ? currentTabConfig.data
         : filteredData.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage)
 
     const handleSelectAll = (checked: boolean) => {
@@ -186,7 +194,7 @@ export default function CustomersPage() {
     }
 
     const handleSortChange = (column: string) => {
-        if (activeTab !== "customers") return
+        if (activeTab !== "customers" && activeTab !== "commissions") return
 
         if (sortBy === column) {
             setSortDirection(prev => prev === "ASC" ? "DESC" : "ASC")
@@ -342,7 +350,7 @@ export default function CustomersPage() {
                     <div className="px-6 py-4 border-t border-border">
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div className="text-sm text-muted-foreground">
-                                Showing {currentPage * rowsPerPage + 1} to {Math.min((currentPage + 1) * rowsPerPage, activeTab === "customers" ? totalElements : filteredData.length)} of {activeTab === "customers" ? totalElements : filteredData.length} results
+                                Showing {currentPage * rowsPerPage + 1} to {Math.min((currentPage + 1) * rowsPerPage, (activeTab === "customers" || activeTab === "commissions") ? totalElements : filteredData.length)} of {(activeTab === "customers" || activeTab === "commissions") ? totalElements : filteredData.length} results
                             </div>
                             <div className="flex items-center gap-2">
                                 <Select
@@ -376,8 +384,8 @@ export default function CustomersPage() {
                                     variant="outline"
                                     size="icon"
                                     className="h-8 w-8"
-                                    onClick={() => handlePageChange(Math.min((activeTab === "customers" ? totalPages : Math.ceil(filteredData.length / rowsPerPage)) - 1, currentPage + 1))}
-                                    disabled={currentPage >= (activeTab === "customers" ? totalPages - 1 : Math.ceil(filteredData.length / rowsPerPage) - 1) || loading}
+                                    onClick={() => handlePageChange(Math.min(((activeTab === "customers" || activeTab === "commissions") ? totalPages : Math.ceil(filteredData.length / rowsPerPage)) - 1, currentPage + 1))}
+                                    disabled={currentPage >= ((activeTab === "customers" || activeTab === "commissions") ? totalPages - 1 : Math.ceil(filteredData.length / rowsPerPage) - 1) || loading}
                                 >
                                     <ChevronRight className="h-4 w-4"/>
                                 </Button>
@@ -390,14 +398,9 @@ export default function CustomersPage() {
     )
 
     return (
-        <div className="flex h-screen bg-background">
-            <MedicalSidebar/>
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <header className="flex items-center justify-between p-6 border-b border-border">
-                    <div className="flex items-center gap-4">
-                    </div>
-
-                </header>
+        <div className="min-h-screen bg-muted/40">
+            <div className="flex">
+                <MedicalSidebar />
                 <main className="flex-1">
                     <div className="container mx-auto px-4 py-8">
                         <div className="flex items-center justify-between mb-8">
@@ -423,8 +426,7 @@ export default function CustomersPage() {
                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                                 <div className="flex justify-between items-start">
                                     <p className="text-blue-800 text-sm">
-                                        <strong>New:</strong> Track commissions and transactions across all your
-                                        affiliate programs.
+                                        <strong>New:</strong> Track commissions and transactions across all your affiliate programs.
                                         <a href="#" className="text-blue-600 hover:underline ml-1">Learn more.</a>
                                     </p>
                                     <Button
@@ -440,7 +442,7 @@ export default function CustomersPage() {
 
                         <div className="flex flex-col gap-4">
                             <div className="flex gap-1 border-b">
-                                {tabConfigs.map(tab => (
+                                {tabConfigs.map((tab: TabConfig) => (
                                     <Button
                                         key={tab.id}
                                         variant={activeTab === tab.id ? "default" : "ghost"}
@@ -448,7 +450,9 @@ export default function CustomersPage() {
                                         onClick={() => handleTabChange(tab.id)}
                                         className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
                                     >
-                                        {tab.id === "customers" ? `Customers (${totalElements})` : tab.label}
+                                        {tab.id === "customers" ? `Customers (${totalElements})` :
+                                            tab.id === "commissions" ? `Commissions (${customers.filter(c => c.totalCommission > 0).length})` :
+                                                tab.label}
                                     </Button>
                                 ))}
                             </div>
@@ -458,6 +462,6 @@ export default function CustomersPage() {
                     </div>
                 </main>
             </div>
-            </div>
-            )
-            }
+        </div>
+    )
+}

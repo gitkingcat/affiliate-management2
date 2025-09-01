@@ -1,11 +1,13 @@
 package com.saas.AffiliateManagement.service;
 
 import com.saas.AffiliateManagement.models.dto.ConversionRateDto;
+import com.saas.AffiliateManagement.models.dto.PaymentDto;
 import com.saas.AffiliateManagement.models.dto.ReferralCustomerDTO;
 import com.saas.AffiliateManagement.models.dto.ReferralDto;
 import com.saas.AffiliateManagement.models.requests.ReferralCreateRequest;
 import com.saas.AffiliateManagement.models.requests.ReferralUpdateRequest;
 import com.saas.AffiliateManagement.models.responses.ReferralTrackingResponse;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -84,4 +86,6 @@ public interface CustomerService {
     Page<ReferralCustomerDTO> searchReferralCustomersByClient(Long clientId, String search, Pageable pageable);
 
     Page<ReferralCustomerDTO> getReferralCustomersByClient(Long clientId, Pageable pageable);
+
+    Page<PaymentDto> getTransactionsByClient(@Min(1) Long clientId, String search, Optional<String> status, Optional<String> paymentMethod, Optional<LocalDateTime> startDate, Optional<LocalDateTime> endDate, Pageable pageable);
 }
