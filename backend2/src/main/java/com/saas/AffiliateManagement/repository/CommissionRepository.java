@@ -59,16 +59,17 @@ public interface CommissionRepository extends JpaRepository<Commission, Long> {
                                                                @Param("endDate") LocalDateTime endDate);
 
 
-    @Query("SELECT c FROM Commission c WHERE c.affiliate.client.id = :clientId " +
+    @Query("SELECT c FROM Commission c WHERE " +
+            "(:clientId IS NULL OR c.affiliate.client.id = :clientId) " +
             "AND (:status IS NULL OR :status = '' OR c.status = :status) " +
             "AND (:type IS NULL OR :type = '' OR c.type = :type) " +
             "AND (:affiliateName IS NULL OR :affiliateName = '' OR " +
             "LOWER(CONCAT(c.affiliate.firstName, ' ', c.affiliate.lastName)) LIKE LOWER(CONCAT('%', :affiliateName, '%'))) " +
             "AND (:search IS NULL OR :search = '' OR " +
-            "('' || COALESCE(c.description, '')) LIKE CONCAT('%', :search, '%') OR " +
-            "('' || COALESCE(c.referralId, '')) LIKE CONCAT('%', :search, '%') OR " +
+            "COALESCE(c.description, '') LIKE CONCAT('%', :search, '%') OR " +
+            "CAST(COALESCE(c.referralId, 0) AS string) LIKE CONCAT('%', :search, '%') OR " +
             "LOWER(CONCAT(c.affiliate.firstName, ' ', c.affiliate.lastName)) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "('' || COALESCE(c.affiliate.email, '')) LIKE CONCAT('%', :search, '%'))")
+            "COALESCE(c.affiliate.email, '') LIKE CONCAT('%', :search, '%'))")
     Page<Commission> findFilteredByClient(@Param("clientId") Long clientId,
                                           @Param("status") String status,
                                           @Param("type") String type,

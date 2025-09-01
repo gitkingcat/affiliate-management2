@@ -15,9 +15,11 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -162,11 +164,19 @@ public class CommissionService {
         return commissionMapper.toDto(updatedCommission);
     }
 
-    public Page<CommissionDto> getFilteredCommissionsByClient(@Min(1) Long clientId,
-                                                              String status, String type, String affiliateName, String search, Pageable pageable) {
+    public Page<CommissionDto> getFilteredCommissionsByClient(Long clientId, String status,
+                                                              String type, String affiliateName,
+                                                              String search, Pageable pageable) {
+
+        Long validatedClientId = validateClientId(clientId);
+        String validatedStatus = validateStringParameter(status);
+        String validatedType = validateStringParameter(type);
+        String validatedAffiliateName = validateStringParameter(affiliateName);
+        String validatedSearch = validateStringParameter(search);
 
         Page<Commission> commissionsPage = commissionRepository
-                .findFilteredByClient(clientId, status, type, affiliateName, search, pageable);
+                .findFilteredByClient(validatedClientId, validatedStatus, validatedType,
+                        validatedAffiliateName, validatedSearch, pageable);
 
         return commissionsPage.map(commissionMapper::toDto);
     }
@@ -195,8 +205,26 @@ public class CommissionService {
         }
     }
 
+    private Long validateClientId(Long clientId) {
+        if (clientId == null) {
+            return null;
+        }
+        if (clientId <= 0) {
+            throw new InvalidCommissionDataException("Client ID must be a positive number");
+        }
+        return clientId;
+    }
+
+    private String validateStringParameter(String parameter) {
+        if (parameter == null || parameter.trim().isEmpty()) {
+            return null;
+        }
+        return parameter.trim();
+    }
+
     private void validateUpdateRequest(CommissionUpdateRequest updateRequest) {
-        if (updateRequest.getAmount() != null && updateRequest.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+        if (updateRequest.getAmount() != null &&
+                updateRequest.getAmount().compareTo(BigDecimal.ZERO) < 0) {
             throw new InvalidCommissionDataException("Commission amount cannot be negative");
         }
 
@@ -220,4 +248,6 @@ public class CommissionService {
             throw new InvalidCommissionDataException("Invalid status. Must be PENDING, PAID, or CANCELLED");
         }
     }
+
+
 }

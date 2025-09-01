@@ -184,20 +184,21 @@ public class CommissionController {
     }
 
     @GetMapping("/client/{clientId}/tab-data")
-    public ResponseEntity<Page<CommissionDto>> getCommissionsTabData(
-            @PathVariable @Min(1) Long clientId,
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "10") @Min(1) int size,
-            @RequestParam(defaultValue = "earnedAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDirection,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String affiliateName,
-            @RequestParam(required = false) String search) {
+    public ResponseEntity<Page<CommissionDto>> getCommissionsByClient(
+            @PathVariable("clientId") String clientIdStr,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "affiliateName", required = false) String affiliateName,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam(value = "sortDirection", defaultValue = "desc") String sortDirection) {
 
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc")
-                ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Long clientId = parseClientId(clientIdStr);
 
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDirection) ?
+                Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         Page<CommissionDto> commissions = commissionService
@@ -205,4 +206,17 @@ public class CommissionController {
 
         return ResponseEntity.ok(commissions);
     }
+
+    private Long parseClientId(String clientIdStr) {
+        if (clientIdStr == null || clientIdStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("Client ID cannot be empty");
+        }
+
+        try {
+            return Long.parseLong(clientIdStr.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid client ID format: " + clientIdStr);
+        }
+    }
+
 }
