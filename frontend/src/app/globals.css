@@ -6,7 +6,7 @@
 :root {
   --background: oklch(1 0 0); /* White background */
   --foreground: oklch(0.35 0 0); /* Dark gray text (#475569) */
-  --card: oklch(0.97 0 0); /* Light gray card background (#f1f5f9) */
+  --card: oklch(1 0 0); /* Light gray card background (#f1f5f9) */
   --card-foreground: oklch(0.35 0 0); /* Dark gray card text */
   --popover: oklch(1 0 0); /* White popover background */
   --popover-foreground: oklch(0.35 0 0); /* Dark gray popover text */

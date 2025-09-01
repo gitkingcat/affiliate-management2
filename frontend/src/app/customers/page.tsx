@@ -387,30 +387,6 @@ export default function CustomersPage() {
                 <header className="bg-card border-b border-border px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-2xl font-bold text-foreground">Customer Management</h1>
-                            <Badge variant="secondary" className="bg-muted">
-                                {totalAcrossAllTabs || 0} Total
-                            </Badge>
-                            {statusCounts && (
-                                <div className="flex items-center gap-2">
-                                    <Badge className="bg-green-100 text-green-800">
-                                        {statusCounts.active} Active
-                                    </Badge>
-                                    <Badge className="bg-yellow-100 text-yellow-800">
-                                        {statusCounts.pending} Pending
-                                    </Badge>
-                                    {statusCounts.completed > 0 && (
-                                        <Badge className="bg-blue-100 text-blue-800">
-                                            {statusCounts.completed} Completed
-                                        </Badge>
-                                    )}
-                                    {statusCounts.failed > 0 && (
-                                        <Badge className="bg-red-100 text-red-800">
-                                            {statusCounts.failed} Failed
-                                        </Badge>
-                                    )}
-                                </div>
-                            )}
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="relative">
@@ -445,209 +421,238 @@ export default function CustomersPage() {
 
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
                     <div className="container mx-auto px-6 py-8">
-                        {showInfoBanner && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
-                                <button
-                                    onClick={() => setShowInfoBanner(false)}
-                                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                                >
-                                    <X className="h-4 w-4"/>
-                                </button>
-                                <h3 className="font-semibold mb-2">Customer Management Dashboard</h3>
-                                <p className="text-sm text-gray-700">
-                                    Track your affiliate customers, commissions, and transactions all in one place. Switch between tabs to view different aspects of your affiliate program performance.
-                                </p>
+                        <div className="space-y-6">
+                            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button>
+                                        <Plus className="h-4 w-4 mr-2"/>
+                                        Create partner
+                                    </Button>
+                                    <Button variant="outline">
+                                        <UserPlus className="h-4 w-4 mr-2"/>
+                                        Invite partner
+                                    </Button>
+                                </div>
                             </div>
-                        )}
-
-                        <div className="flex flex-col gap-4">
-                            <div className="flex gap-1 border-b">
-                                {Object.values(TAB_CONFIGS).map((tab) => {
-                                    const tabData = tabsData[tab.id as TabType]
-                                    const count = tabData.loaded ? tabData.totalElements : ''
-                                    const label = count ? `${tab.label} (${count})` : tab.label
-
-                                    return (
-                                        <Button
-                                            key={tab.id}
-                                            variant={activeTab === tab.id ? "default" : "ghost"}
-                                            size="sm"
-                                            onClick={() => handleTabChange(tab.id as TabType)}
-                                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                                            disabled={tabData.loading}
+                            <div className="container mx-auto px-6 py-8">
+                                {showInfoBanner && (
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
+                                        <button
+                                            onClick={() => setShowInfoBanner(false)}
+                                            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
                                         >
-                                            {label}
-                                            {tabData.loading && (
-                                                <Loader2 className="inline h-3 w-3 ml-2 animate-spin" />
-                                            )}
-                                        </Button>
-                                    )
-                                })}
-                            </div>
-
-                            <Card>
-                                <CardHeader className="pb-4">
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="text-lg font-medium">
-                                            {currentTabConfig.label}
-                                        </CardTitle>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm" disabled={currentTabData.loading}>
-                                                <Filter className="w-4 h-4 mr-2" />
-                                                More Filters
-                                            </Button>
-                                            <Button variant="outline" size="sm" disabled={currentTabData.loading}>
-                                                <Download className="w-4 w-4 mr-2" />
-                                                Export
-                                            </Button>
-                                        </div>
+                                            <X className="h-4 w-4"/>
+                                        </button>
+                                        <h3 className="font-semibold mb-2">Customer Management Dashboard</h3>
+                                        <p className="text-sm text-gray-700">
+                                            Track your affiliate customers, commissions, and transactions all in one
+                                            place.
+                                            Switch between tabs to view different aspects of your affiliate program
+                                            performance.
+                                        </p>
                                     </div>
-                                </CardHeader>
+                                )}
 
-                                <CardContent>
-                                    {currentTabData.error && (
-                                        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                            <p className="text-red-600">Error: {currentTabData.error}</p>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={handleRetry}
-                                                className="mt-2"
-                                            >
-                                                <RefreshCw className="h-4 w-4 mr-2"/>
-                                                Retry
-                                            </Button>
-                                        </div>
-                                    )}
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex gap-1 border-b">
+                                        {Object.values(TAB_CONFIGS).map((tab) => {
+                                            const tabData = tabsData[tab.id as TabType]
+                                            const count = tabData.loaded ? tabData.totalElements : ''
+                                            const label = count ? `${tab.label} (${count})` : tab.label
 
-                                    <div className="rounded-md border bg-transparent">
-                                        <Table className="bg-transparent">
-                                            <TableHeader className="bg-transparent">
-                                                <TableRow className="bg-transparent hover:bg-transparent">
-                                                    <TableHead className="w-12">
-                                                        <Checkbox
-                                                            checked={selectedItems.length === currentTabData.data.length && currentTabData.data.length > 0}
-                                                            onCheckedChange={handleSelectAll}
-                                                            disabled={currentTabData.loading || currentTabData.data.length === 0}
-                                                        />
-                                                    </TableHead>
-                                                    {currentTabConfig.columns.map((column) => (
-                                                        <TableHead
-                                                            key={column.key}
-                                                            className={`cursor-pointer hover:text-foreground ${column.key === sortBy ? 'text-foreground' : 'text-muted-foreground'}`}
-                                                            onClick={() => handleSortChange(column.key)}
-                                                        >
-                                                            {column.header}
-                                                            {column.key === sortBy && (
-                                                                <span className="ml-1">
+                                            return (
+                                                <Button
+                                                    key={tab.id}
+                                                    variant={activeTab === tab.id ? "default" : "ghost"}
+                                                    size="sm"
+                                                    onClick={() => handleTabChange(tab.id as TabType)}
+                                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                                                    disabled={tabData.loading}
+                                                >
+                                                    {label}
+                                                    {tabData.loading && (
+                                                        <Loader2 className="inline h-3 w-3 ml-2 animate-spin"/>
+                                                    )}
+                                                </Button>
+                                            )
+                                        })}
+                                    </div>
+
+                                    <Card>
+                                        <CardHeader className="pb-4">
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="text-lg font-medium">
+                                                </CardTitle>
+                                                <div className="flex items-center gap-2">
+                                                    <Button variant="outline" size="sm"
+                                                            disabled={currentTabData.loading}>
+                                                        <Filter className="w-4 h-4 mr-2"/>
+                                                        More Filters
+                                                    </Button>
+                                                    <Button variant="outline" size="sm"
+                                                            disabled={currentTabData.loading}>
+                                                        <Download className="w-4 w-4 mr-2"/>
+                                                        Export
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent>
+                                            {currentTabData.error && (
+                                                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                                    <p className="text-red-600">Error: {currentTabData.error}</p>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={handleRetry}
+                                                        className="mt-2"
+                                                    >
+                                                        <RefreshCw className="h-4 w-4 mr-2"/>
+                                                        Retry
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            <div className="rounded-md border bg-background">
+                                                <Table className="bg-transparent">
+                                                    <TableHeader className="bg-transparent">
+                                                        <TableRow className="bg-transparent hover:bg-transparent">
+                                                            <TableHead className="w-12">
+                                                                <Checkbox
+                                                                    checked={selectedItems.length === currentTabData.data.length && currentTabData.data.length > 0}
+                                                                    onCheckedChange={handleSelectAll}
+                                                                    disabled={currentTabData.loading || currentTabData.data.length === 0}
+                                                                />
+                                                            </TableHead>
+                                                            {currentTabConfig.columns.map((column) => (
+                                                                <TableHead
+                                                                    key={column.key}
+                                                                    className={`cursor-pointer hover:text-foreground ${column.key === sortBy ? 'text-foreground' : 'text-muted-foreground'}`}
+                                                                    onClick={() => handleSortChange(column.key)}
+                                                                >
+                                                                    {column.header}
+                                                                    {column.key === sortBy && (
+                                                                        <span className="ml-1">
                                                                 {sortDirection === 'ASC' ? '↑' : '↓'}
                                                             </span>
-                                                            )}
-                                                        </TableHead>
-                                                    ))}
-                                                    <TableHead></TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody className="bg-transparent">
-                                                {currentTabData.loading ? (
-                                                    <TableRow className="bg-transparent hover:bg-transparent">
-                                                        <TableCell colSpan={currentTabConfig.columns.length + 2} className="text-center py-8 bg-transparent">
-                                                            <div className="flex items-center justify-center">
-                                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
-                                                                <span>Loading {currentTabConfig.label.toLowerCase()}...</span>
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ) : !currentTabData.data || currentTabData.data.length === 0 ? (
-                                                    <TableRow className="bg-transparent hover:bg-transparent">
-                                                        <TableCell colSpan={currentTabConfig.columns.length + 2} className="text-center py-8 bg-transparent">
-                                                            <div className="flex flex-col items-center">
-                                                                <Users className="w-12 h-12 text-muted-foreground mb-2" />
-                                                                <p className="text-muted-foreground">
-                                                                    {searchQuery ? 'No results found for your search.' : `No ${currentTabConfig.label.toLowerCase()} found`}
-                                                                </p>
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ) : (
-                                                    currentTabData.data.map((item: any) => (
-                                                        <TableRow key={item.id} className="bg-transparent hover:bg-muted/20">
-                                                            <TableCell className="bg-transparent">
-                                                                <Checkbox
-                                                                    checked={selectedItems.includes(item.id)}
-                                                                    onCheckedChange={() => handleSelectItem(item.id)}
-                                                                />
-                                                            </TableCell>
-                                                            {currentTabConfig.columns.map((column) => (
-                                                                <TableCell key={column.key} className="bg-transparent">
-                                                                    {renderCellContent(item, column.key)}
-                                                                </TableCell>
+                                                                    )}
+                                                                </TableHead>
                                                             ))}
-                                                            <TableCell className="bg-transparent">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </TableCell>
+                                                            <TableHead></TableHead>
                                                         </TableRow>
-                                                    ))
-                                                )}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
+                                                    </TableHeader>
+                                                    <TableBody className="bg-transparent">
+                                                        {currentTabData.loading ? (
+                                                            <TableRow className="bg-transparent hover:bg-transparent">
+                                                                <TableCell colSpan={currentTabConfig.columns.length + 2}
+                                                                           className="text-center py-8 bg-transparent">
+                                                                    <div className="flex items-center justify-center">
+                                                                        <div
+                                                                            className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                                                                        <span>Loading {currentTabConfig.label.toLowerCase()}...</span>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ) : !currentTabData.data || currentTabData.data.length === 0 ? (
+                                                            <TableRow className="bg-transparent hover:bg-transparent">
+                                                                <TableCell colSpan={currentTabConfig.columns.length + 2}
+                                                                           className="text-center py-8 bg-transparent">
+                                                                    <div className="flex flex-col items-center">
+                                                                        <Users
+                                                                            className="w-12 h-12 text-muted-foreground mb-2"/>
+                                                                        <p className="text-muted-foreground">
+                                                                            {searchQuery ? 'No results found for your search.' : `No ${currentTabConfig.label.toLowerCase()} found`}
+                                                                        </p>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ) : (
+                                                            currentTabData.data.map((item: any) => (
+                                                                <TableRow key={item.id}
+                                                                          className="bg-transparent hover:bg-muted/20">
+                                                                    <TableCell className="bg-transparent">
+                                                                        <Checkbox
+                                                                            checked={selectedItems.includes(item.id)}
+                                                                            onCheckedChange={() => handleSelectItem(item.id)}
+                                                                        />
+                                                                    </TableCell>
+                                                                    {currentTabConfig.columns.map((column) => (
+                                                                        <TableCell key={column.key}
+                                                                                   className="bg-transparent">
+                                                                            {renderCellContent(item, column.key)}
+                                                                        </TableCell>
+                                                                    ))}
+                                                                    <TableCell className="bg-transparent">
+                                                                        <MoreHorizontal className="h-4 w-4"/>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        )}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
 
-                                    {currentTabData.data.length > 0 && (
-                                        <div className="flex items-center justify-between space-x-2 py-4">
-                                            <div className="flex items-center space-x-2">
-                                                <p className="text-sm font-medium">Rows per page</p>
-                                                <Select
-                                                    value={`${rowsPerPage}`}
-                                                    onValueChange={(value) => {
-                                                        setRowsPerPage(Number(value))
-                                                        setCurrentPage(0)
-                                                    }}
-                                                >
-                                                    <SelectTrigger className="h-8 w-[70px]">
-                                                        <SelectValue placeholder={rowsPerPage} />
-                                                    </SelectTrigger>
-                                                    <SelectContent side="top">
-                                                        {[10, 20, 30, 40, 50].map((pageSize) => (
-                                                            <SelectItem key={pageSize} value={`${pageSize}`}>
-                                                                {pageSize}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="flex items-center space-x-6 lg:space-x-8">
-                                                <div className="flex items-center space-x-2">
-                                                    <p className="text-sm font-medium">
-                                                        Page {currentPage + 1} of {currentTabData.totalPages || 1}
-                                                    </p>
+                                            {currentTabData.data.length > 0 && (
+                                                <div className="flex items-center justify-between space-x-2 py-4">
+                                                    <div className="flex items-center space-x-2">
+                                                        <p className="text-sm font-medium">Rows per page</p>
+                                                        <Select
+                                                            value={`${rowsPerPage}`}
+                                                            onValueChange={(value) => {
+                                                                setRowsPerPage(Number(value))
+                                                                setCurrentPage(0)
+                                                            }}
+                                                        >
+                                                            <SelectTrigger className="h-8 w-[70px]">
+                                                                <SelectValue placeholder={rowsPerPage}/>
+                                                            </SelectTrigger>
+                                                            <SelectContent side="top">
+                                                                {[10, 20, 30, 40, 50].map((pageSize) => (
+                                                                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                                                                        {pageSize}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="flex items-center space-x-6 lg:space-x-8">
+                                                        <div className="flex items-center space-x-2">
+                                                            <p className="text-sm font-medium">
+                                                                Page {currentPage + 1} of {currentTabData.totalPages || 1}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <Button
+                                                                variant="outline"
+                                                                className="h-8 w-8 p-0"
+                                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                                disabled={currentPage === 0 || currentTabData.loading}
+                                                            >
+                                                                <ChevronLeft className="h-4 w-4"/>
+                                                            </Button>
+                                                            <Button
+                                                                variant="outline"
+                                                                className="h-8 w-8 p-0"
+                                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                                disabled={currentPage >= (currentTabData.totalPages - 1) || currentTabData.loading}
+                                                            >
+                                                                <ChevronRight className="h-4 w-4"/>
+                                                            </Button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        className="h-8 w-8 p-0"
-                                                        onClick={() => handlePageChange(currentPage - 1)}
-                                                        disabled={currentPage === 0 || currentTabData.loading}
-                                                    >
-                                                        <ChevronLeft className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="h-8 w-8 p-0"
-                                                        onClick={() => handlePageChange(currentPage + 1)}
-                                                        disabled={currentPage >= (currentTabData.totalPages - 1) || currentTabData.loading}
-                                                    >
-                                                        <ChevronRight className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </main>
+                        </div>
+                        </main>
             </div>
         </div>
 )
