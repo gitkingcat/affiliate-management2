@@ -143,6 +143,7 @@ export default function AddPartnerPage() {
                             onChange={handleInputChange}
                             required
                             placeholder="John"
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
 
@@ -157,6 +158,7 @@ export default function AddPartnerPage() {
                             onChange={handleInputChange}
                             required
                             placeholder="Doe"
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
 
@@ -172,6 +174,7 @@ export default function AddPartnerPage() {
                             onChange={handleInputChange}
                             required
                             placeholder="john.doe@example.com"
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
 
@@ -183,6 +186,7 @@ export default function AddPartnerPage() {
                             value={formData.phoneNumber}
                             onChange={handleInputChange}
                             placeholder="+1 234 567 8900"
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
 
@@ -194,6 +198,7 @@ export default function AddPartnerPage() {
                             value={formData.companyName}
                             onChange={handleInputChange}
                             placeholder="Acme Inc."
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
 
@@ -206,6 +211,7 @@ export default function AddPartnerPage() {
                             value={formData.website}
                             onChange={handleInputChange}
                             placeholder="https://example.com"
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
 
@@ -237,6 +243,7 @@ export default function AddPartnerPage() {
                             value={formData.socialMediaLinks}
                             onChange={handleInputChange}
                             placeholder="@johndoe"
+                            className="placeholder:italic placeholder:text-slate-400"
                         />
                       </div>
                     </div>
@@ -249,6 +256,7 @@ export default function AddPartnerPage() {
                           value={formData.paymentDetails}
                           onChange={handleInputChange}
                           placeholder="Enter payment details (account number, wallet address, etc.)"
+                          className="placeholder:italic placeholder:text-slate-400"
                           rows={3}
                       />
                     </div>
@@ -261,6 +269,7 @@ export default function AddPartnerPage() {
                           value={formData.notes}
                           onChange={handleInputChange}
                           placeholder="Additional notes about this partner"
+                          className="placeholder:italic placeholder:text-slate-400"
                           rows={4}
                       />
                     </div>
