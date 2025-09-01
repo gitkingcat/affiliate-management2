@@ -23,8 +23,7 @@ public interface PayoutRepository extends JpaRepository<Payout, Long>, JpaSpecif
             "AND (:email IS NULL OR a.email ILIKE '%' || :email || '%') " +
             "AND (:status IS NULL OR p.status = :status) " +
             "AND (:commissionStart IS NULL OR p.commission_start >= :commissionStart) " +
-            "AND (:commissionEnd IS NULL OR p.commission_end <= :commissionEnd) " +
-            "ORDER BY p.created_at DESC",
+            "AND (:commissionEnd IS NULL OR p.commission_end <= :commissionEnd)",
             countQuery = "SELECT COUNT(*) FROM payouts p " +
                     "JOIN affiliates a ON a.id = p.affiliate_id " +
                     "WHERE a.client_id = :clientId " +

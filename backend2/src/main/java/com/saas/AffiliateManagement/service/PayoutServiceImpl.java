@@ -7,7 +7,9 @@ import com.saas.AffiliateManagement.service.mappers.PayoutMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +34,17 @@ public class PayoutServiceImpl implements PayoutService {
             LocalDate commissionEnd,
             Pageable pageable) {
 
+        Pageable sortedPageable = pageable.getSort().isUnsorted()
+                ? PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "created_at"))
+                : pageable;
+
         Page<Payout> payouts = payoutRepository.findPayoutsForClientWithFilters(
                 clientId,
                 partnerName != null ? partnerName.toLowerCase() : null,
                 email != null ? email.toLowerCase() : null,
                 status != null ? status.toLowerCase() : null,
-                commissionStart, commissionEnd, pageable);
+                commissionStart, commissionEnd, sortedPageable);
 
         return payouts.map(payoutMapper::toDto);
     }

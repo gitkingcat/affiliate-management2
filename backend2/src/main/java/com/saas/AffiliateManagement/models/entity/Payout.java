@@ -56,7 +56,7 @@ public class Payout {
     private LocalDateTime processedAt;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "createdat", nullable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
