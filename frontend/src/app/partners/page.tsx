@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from 'next/navigation';
+
 import {
   Search,
   Bell,
@@ -84,6 +86,8 @@ export default function PartnersPage() {
   const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(null);
 
   const clientId = 1;
+
+  const router = useRouter();
 
   useEffect(() => {
     fetchAffiliates();
@@ -246,8 +250,8 @@ export default function PartnersPage() {
                 <Button onClick={handleSearch} variant="secondary">
                   Search
                 </Button>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
+                <Button onClick={() => router.push('/partners/add')}>
+                  <Plus className="mr-2 h-4 w-4" />
                   Add Partner
                 </Button>
                 <Button variant="ghost" size="icon">
