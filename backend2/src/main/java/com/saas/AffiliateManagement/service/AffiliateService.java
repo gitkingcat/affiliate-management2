@@ -452,7 +452,7 @@ public class AffiliateService {
 
     private StatusCounts getStatusCounts(Long clientId) {
         Long active = affiliateRepository.countByClientIdAndStatus(clientId, "ACTIVE");
-        Long pending = affiliateRepository.countByClientIdAndStatus(clientId, "PENDING_APPROVAL");
+        Long pending = affiliateRepository.countByClientIdAndStatus(clientId, "PENDING");
         Long invited = affiliateRepository.countByClientIdAndStatus(clientId, "INVITED");
         Long inactive = affiliateRepository.countByClientIdAndStatus(clientId, "INACTIVE");
         Long rejected = affiliateRepository.countByClientIdAndStatus(clientId, "REJECTED");
