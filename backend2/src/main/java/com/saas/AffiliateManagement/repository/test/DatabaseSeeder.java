@@ -183,6 +183,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 "Fraudulent activity detected" : null)
                         .createdAt(LocalDateTime.now().minusDays(random.nextInt(200)))
                         .updatedAt(LocalDateTime.now().minusDays(random.nextInt(30)))
+                        .uniqueIdentifier(uniqueIdentifier)
+                        .targetUrl(targetUrl)
                         .build();
 
                 affiliates.add(affiliate);
