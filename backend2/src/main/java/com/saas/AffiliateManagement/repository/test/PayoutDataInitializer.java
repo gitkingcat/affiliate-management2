@@ -1,4 +1,4 @@
-package com.saas.AffiliateManagement.config;
+package com.saas.AffiliateManagement.repository.test;
 
 import com.saas.AffiliateManagement.models.entity.Affiliate;
 import com.saas.AffiliateManagement.models.entity.Client;
@@ -124,7 +124,7 @@ public class PayoutDataInitializer {
         List<Payout> payouts = new ArrayList<>();
         LocalDate currentDate = LocalDate.now();
 
-        String[] statuses = {"pending", "processing", "completed", "failed", "cancelled"};
+        String[] statuses = {"pending", "processing", "paid", "failed", "cancelled"};
         String[] methods = {"PayPal", "Wire", "Wise", "Crypto", "ACH"};
 
         for (Affiliate affiliate : affiliates) {
@@ -151,7 +151,7 @@ public class PayoutDataInitializer {
                         .transactionId(generateTransactionId(status))
                         .paymentReference(generatePaymentReference(affiliate, i))
                         .notes(generateNotes(status, amount))
-                        .processedAt(status.equals("completed") ?
+                        .processedAt(status.equals("paid") ?
                                 LocalDateTime.now().minusMonths(i).minusDays(random.nextInt(5)) : null)
                         .createdAt(LocalDateTime.now().minusMonths(i))
                         .updatedAt(LocalDateTime.now().minusMonths(i).plusDays(random.nextInt(3)))
@@ -180,7 +180,7 @@ public class PayoutDataInitializer {
 
     private String generateNotes(String status, BigDecimal amount) {
         switch (status) {
-            case "completed":
+            case "paid":
                 return "Payment processed successfully. Amount: $" + amount;
             case "failed":
                 return "Payment failed due to insufficient funds or invalid account details";

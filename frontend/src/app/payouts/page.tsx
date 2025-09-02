@@ -132,9 +132,9 @@ export default function PayoutsPage() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
     if (tab === "pending") {
-      handleFilterChange('status', 'PENDING')
+      handleFilterChange('status', 'pending')
     } else if (tab === "paid") {
-      handleFilterChange('status', 'PAID')
+      handleFilterChange('status', 'paid')
     } else {
       handleFilterChange('status', '')
     }
@@ -170,14 +170,52 @@ export default function PayoutsPage() {
   }
 
   const getStatusBadge = (status: string) => {
-    return (
-        <Badge
-            variant={status === "PENDING" ? "default" : "secondary"}
-            className={status === "PENDING" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-100 text-green-800"}
-        >
-          {status === "PENDING" ? "Pending" : "Paid"}
-        </Badge>
-    )
+    const statusUpper = status.toUpperCase();
+
+    switch(statusUpper) {
+      case "PENDING":
+        return (
+            <Badge
+                variant="default"
+                className="bg-yellow-100 text-yellow-800"
+            >
+              Pending
+            </Badge>
+        );
+      case "PAID":
+        return (
+            <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-800"
+            >
+              Paid
+            </Badge>
+        );
+      case "FAILED":
+        return (
+            <Badge
+                variant="destructive"
+                className="bg-red-100 text-red-800"
+            >
+              Failed
+            </Badge>
+        );
+      case "CANCELLED":
+        return (
+            <Badge
+                variant="secondary"
+                className="bg-gray-100 text-gray-800"
+            >
+              Cancelled
+            </Badge>
+        );
+      default:
+        return (
+            <Badge variant="outline">
+              {status}
+            </Badge>
+        );
+    }
   }
 
   const handleSelectAll = (checked: boolean) => {
@@ -196,8 +234,10 @@ export default function PayoutsPage() {
     )
   }
 
-  const pendingCount = payouts.filter(p => p.status === "PENDING").length
-  const paidCount = payouts.filter(p => p.status === "PAID").length
+  const pendingCount = payouts.filter(p =>
+      p.status.toUpperCase() === "PENDING").length
+  const paidCount = payouts.filter(p =>
+      p.status.toUpperCase() === "PAID").length
 
   return (
       <div className="flex h-screen bg-background">
