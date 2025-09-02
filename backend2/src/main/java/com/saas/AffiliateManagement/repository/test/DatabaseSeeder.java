@@ -123,6 +123,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info("Creating sample affiliates...");
 
         List<Affiliate> affiliates = new ArrayList<>();
+        Set<String> usedIdentifiers = new HashSet<>();
 
         String[] firstNames = {"John", "Jane", "Mike", "Sarah", "David", "Lisa", "Tom", "Emily",
                 "Chris", "Anna", "Mark", "Jessica", "Paul", "Amanda", "Steve",
@@ -142,6 +143,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         String[] statuses = {"ACTIVE", "ACTIVE", "ACTIVE", "ACTIVE", "PENDING", "SUSPENDED"};
         String[] paymentMethods = {"PayPal", "Bank Transfer", "Stripe", "Wire Transfer", "Crypto"};
         String[] sources = {"Website", "Social Media", "Email Campaign", "Referral", "Advertisement"};
+        String[] products = {"premium", "basic", "enterprise", "pro", "starter", "business", "team"};
+        String[] paths = {"signup", "register", "join", "get-started", "pricing", "plans"};
+
 
         for (Client client : clients) {
             int affiliatesPerClient = 8 + random.nextInt(12); // 8-20 affiliates per client
@@ -151,6 +155,13 @@ public class DatabaseSeeder implements CommandLineRunner {
                 String lastName = lastNames[random.nextInt(lastNames.length)];
                 String email = generateUniqueEmail(firstName.toLowerCase(), lastName.toLowerCase());
                 String status = statuses[random.nextInt(statuses.length)];
+                // Generate unique identifier
+                String uniqueIdentifier = generateUniqueAffiliateIdentifier(
+                        firstName, lastName, client, usedIdentifiers, i);
+                usedIdentifiers.add(uniqueIdentifier);
+
+                // Generate target URL for this affiliate
+                String targetUrl = generateAffiliateTargetUrl(client, products, paths);
 
                 Affiliate affiliate = Affiliate.builder()
                         .client(client)
@@ -179,6 +190,52 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         return affiliateRepository.saveAll(affiliates);
+    }
+
+    private String generateUniqueAffiliateIdentifier(String firstName, String lastName,
+                                                     Client client, Set<String> usedIdentifiers, int index) {
+        String baseIdentifier = firstName.toLowerCase() + "_" +
+                client.getCompanyName()
+                        .toLowerCase()
+                        .replaceAll("[^a-z0-9]", "")
+                        .replace("solutions", "sol")
+                        .replace("corporation", "corp")
+                        .replace("company", "co")
+                        .replace("technologies", "tech")
+                        .replace("services", "svc");
+
+        // Ensure max 45 characters to leave room for suffix
+        if (baseIdentifier.length() > 45) {
+            baseIdentifier = baseIdentifier.substring(0, 45);
+        }
+
+        String identifier = baseIdentifier;
+        int suffix = 1;
+
+        // Ensure uniqueness
+        while (usedIdentifiers.contains(identifier)) {
+            identifier = baseIdentifier + suffix;
+            suffix++;
+            if (identifier.length() > 50) {
+                identifier = baseIdentifier.substring(0, 47) + suffix;
+            }
+        }
+
+        return identifier;
+    }
+
+    private String generateAffiliateTargetUrl(Client client, String[] products, String[] paths) {
+        String companyDomain = client.getCompanyName()
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]", "")
+                .replace("solutions", "sol")
+                .replace("corporation", "corp")
+                .replace("company", "co");
+
+        String product = products[random.nextInt(products.length)];
+        String path = paths[random.nextInt(paths.length)];
+
+        return "https://" + companyDomain + ".com/" + path + "/" + product + "?utm_source=affiliate";
     }
 
     private List<Referral> createReferrals(List<Affiliate> affiliates) {
