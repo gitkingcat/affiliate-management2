@@ -41,6 +41,7 @@ public class AuthService {
         // Create new client (company)
         Client client = Client.builder()
                 .companyName(request.getCompanyName())
+                .name(request.getCompanyName())
                 .email(request.getEmail())
                 .contactFirstName(request.getFirstName())
                 .contactLastName(request.getLastName())

@@ -38,6 +38,10 @@ export default function LandingPage() {
 
   const router = useRouter()
 
+  const handleSignIn = () => {
+    router.push("/register")
+  }
+
   const handleStartFreeTrial = () => {
     router.push("/dashboard")
   }
@@ -75,7 +79,11 @@ export default function LandingPage() {
               </nav>
 
               <div className="flex items-center space-x-3">
-                <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                <Button
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={handleSignIn}
+                >
                   Sign In
                 </Button>
                 <Button
