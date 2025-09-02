@@ -52,6 +52,7 @@ public class PayoutDataInitializer {
         return clientRepository.findAll().stream().findFirst()
                 .orElseGet(() -> clientRepository.save(Client.builder()
                         .companyName("TechCorp Solutions")
+                        .name("John")
                         .email("admin@techcorp.com")
                         .contactFirstName("John")
                         .contactLastName("Smith")
@@ -85,15 +86,15 @@ public class PayoutDataInitializer {
 
         List<Affiliate> affiliates = List.of(
                 createAffiliate(client, "Sarah", "Johnson", "sarah.johnson@email.com",
-                        "PayPal", "sarah@paypal.com", "ACTIVE"),
+                        "PayPal", "sarah@paypal.com", "ACTIVE", "xxx1", "google.com/x1"),
                 createAffiliate(client, "Michael", "Chen", "michael.chen@email.com",
-                        "Wire", "ACC-12345678", "ACTIVE"),
+                        "Wire", "ACC-12345678", "ACTIVE", "xxx2", "google.com/x2"),
                 createAffiliate(client, "Emma", "Wilson", "emma.wilson@email.com",
-                        "Wise", "emma.wise@email.com", "ACTIVE"),
+                        "Wise", "emma.wise@email.com", "ACTIVE", "xxx3", "google.com/x3"),
                 createAffiliate(client, "James", "Anderson", "james.anderson@email.com",
-                        "Crypto", "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1", "ACTIVE"),
+                        "Crypto", "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1", "ACTIVE", "xxx4", "google.com/x4"),
                 createAffiliate(client, "Olivia", "Martinez", "olivia.martinez@email.com",
-                        "PayPal", "olivia@paypal.com", "SUSPENDED")
+                        "PayPal", "olivia@paypal.com", "SUSPENDED", "xxx5", "google.com/x5")
         );
 
         return affiliateRepository.saveAll(affiliates);
@@ -101,7 +102,7 @@ public class PayoutDataInitializer {
 
     private Affiliate createAffiliate(Client client, String firstName,
                                       String lastName, String email, String paymentMethod,
-                                      String paymentDetails, String status) {
+                                      String paymentDetails, String status, String uniqueIdentifier, String targetUrl) {
 
         return Affiliate.builder()
                 .client(client)
@@ -117,6 +118,8 @@ public class PayoutDataInitializer {
                 .referralCode(firstName.toUpperCase() + random.nextInt(1000))
                 .createdAt(LocalDateTime.now().minusMonths(random.nextInt(12) + 1))
                 .updatedAt(LocalDateTime.now())
+                .uniqueIdentifier(uniqueIdentifier)
+                .targetUrl(targetUrl)
                 .build();
     }
 

@@ -22,6 +22,8 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
 
     boolean existsByReferralCodeAndStatus(String referralCode, String status);
 
+    boolean existsByReferralCode(String referralCode);
+
     List<Referral> findByAffiliateIdAndClickedAtBetween(Long affiliateId,
                                                         LocalDateTime startDate,
                                                         LocalDateTime endDate);

@@ -25,6 +25,10 @@ public interface AffiliateRepository extends JpaRepository<Affiliate, Long> {
 
     Optional<Affiliate> findByReferralCode(String referralCode);
 
+    Optional<Affiliate> findByUniqueIdentifier(String uniqueIdentifier);
+
+    boolean existsByUniqueIdentifier(String uniqueIdentifier);
+
     Page<Affiliate> findByStatus(String status, Pageable pageable);
 
     Page<Affiliate> findByClientId(Long clientId, Pageable pageable);

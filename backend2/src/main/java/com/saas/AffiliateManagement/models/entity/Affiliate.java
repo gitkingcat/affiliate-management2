@@ -24,6 +24,12 @@ public class Affiliate {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
+    @Column(name = "unique_identifier", nullable = false, unique = true, length = 50)
+    private String uniqueIdentifier;
+
+    @Column(name = "target_url", nullable = false, length = 2000)
+    private String targetUrl;
+
     @Column(nullable = false)
     private String email;
 
