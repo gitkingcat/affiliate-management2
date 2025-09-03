@@ -37,49 +37,6 @@ export default function Header({
                         onChange={(e) => onSearchChange(e.target.value)}
                     />
                 </div>
-
-                <Select
-                    value={filters.status || "all"}
-                    onValueChange={(value) => onFilterChange('status', value === "all" ? "" : value)}
-                >
-                    <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="PAID">Paid</SelectItem>
-                    </SelectContent>
-                </Select>
-
-                <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                        type="date"
-                        placeholder="Commission Start"
-                        value={filters.commissionStart}
-                        onChange={(e) => onFilterChange('commissionStart', e.target.value)}
-                        className="w-40"
-                    />
-                    <span className="text-muted-foreground">to</span>
-                    <Input
-                        type="date"
-                        placeholder="Commission End"
-                        value={filters.commissionEnd}
-                        onChange={(e) => onFilterChange('commissionEnd', e.target.value)}
-                        className="w-40"
-                    />
-                </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                    <Upload className="h-4 w-4 mr-2"/>
-                    Upload payouts
-                </Button>
-                <Button size="sm">
-                    Generate payouts
-                </Button>
             </div>
         </header>
     )

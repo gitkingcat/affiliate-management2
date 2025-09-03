@@ -8,8 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronLeft, ChevronRight, Search, Filter, MoreHorizontal, Plus, UserPlus, Bell, Mail } from "lucide-react"
 import Reports from "@/src/app/reports/charts";
 import {DashboardHeader} from "@/src/headers/dashboardHeader";
+import Header from "@/src/headers/header";
 
-
+interface FilterState {
+  partnerName: string
+  email: string
+  status: string
+  commissionStart: string
+  commissionEnd: string
+}
 
 export default function ReportsPage() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -17,13 +24,27 @@ export default function ReportsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [rowsPerPage, setRowsPerPage] = useState(10)
     const [selectedPeriod, setSelectedPeriod] = useState(30);
+  const [filters, setFilters] = useState<FilterState>({
+    partnerName: "",
+    email: "",
+    status: "",
+    commissionStart: "",
+    commissionEnd: ""
+  })
 
-
-
-  const formatCurrency = (amount: number) => {
-    return amount === 0 ? "$0.00" : `$${amount.toFixed(2)}`
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    if (query.includes('@')) {
+      handleFilterChange('email', query)
+    } else {
+      handleFilterChange('partnerName', query)
+    }
   }
 
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    setFilters(prev => ({...prev, [key]: value}))
+    setCurrentPage(0)
+  }
   return (
       <div className="flex h-screen bg-background">
         {/* Sidebar */}
@@ -32,9 +53,11 @@ export default function ReportsPage() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <DashboardHeader
-              selectedPeriod={selectedPeriod}
-              onPeriodChange={setSelectedPeriod}
+          <Header
+              searchQuery={searchQuery}
+              filters={filters}
+              onSearchChange={handleSearch}
+              onFilterChange={handleFilterChange}
           />
 
 

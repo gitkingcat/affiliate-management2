@@ -17,10 +17,12 @@ import {
     RefreshCw,
     Plus,
     MoreHorizontal,
-    Users
+    Users, Calendar
 } from "lucide-react"
 import {renderCellContent} from "@/src/config/customers-tab-configs"
 import Header from "@/src/headers/header";
+import InfoBanner from "@/src/utils/InfoBanner";
+import {Input} from "@/components/ui/input";
 
 interface FilterState {
     partnerName: string
@@ -391,26 +393,6 @@ export default function CustomersPage() {
         setFilters(prev => ({...prev, [key]: value}))
         setCurrentPage(0)
     }
-
-    const getStatusColor = (status: string): string => {
-        switch (status.toUpperCase()) {
-            case 'ACTIVE':
-                return 'bg-green-100 text-green-800'
-            case 'PENDING':
-                return 'bg-yellow-100 text-yellow-800'
-            case 'INACTIVE':
-                return 'bg-gray-100 text-gray-800'
-            case 'SUSPENDED':
-                return 'bg-red-100 text-red-800'
-            case 'COMPLETED':
-                return 'bg-blue-100 text-blue-800'
-            case 'FAILED':
-                return 'bg-red-100 text-red-800'
-            default:
-                return 'bg-gray-100 text-gray-800'
-        }
-    }
-
     const currentTabData = tabsData[activeTab]
     const currentTabConfig = TAB_CONFIGS[activeTab]
 
@@ -431,6 +413,20 @@ export default function CustomersPage() {
                         <div className="flex items-center justify-between mb-6">
                             <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
                             <div className="flex gap-2">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-muted-foreground"/>
+                                    <Input
+                                        type="date"
+                                        placeholder="Commission Start"
+                                        className="w-40"
+                                    />
+                                    <span className="text-muted-foreground">to</span>
+                                    <Input
+                                        type="date"
+                                        placeholder="Commission End"
+                                        className="w-40"
+                                    />
+                                </div>
                                 <Button>
                                     <Plus className="h-4 w-4 mr-2"/>
                                     Create customer
@@ -439,21 +435,11 @@ export default function CustomersPage() {
                         </div>
                         <div className="space-y-6">
                             {showInfoBanner && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
-                                    <button
-                                        onClick={() => setShowInfoBanner(false)}
-                                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        <X className="h-4 w-4"/>
-                                    </button>
-                                    <h3 className="font-semibold mb-2">Customer Management Dashboard</h3>
-                                    <p className="text-sm text-gray-700">
-                                        Track your affiliate customers, commissions, and transactions all in one
-                                        place.
-                                        Switch between tabs to view different aspects of your affiliate program
-                                        performance.
-                                    </p>
-                                </div>
+                                <InfoBanner
+                                    description="Track your affiliate customers, commissions, and transactions all in one place. Switch between tabs to view different aspects of your affiliate program performance."
+                                    show={showInfoBanner}
+                                    onClose={() => setShowInfoBanner(false)}
+                                />
                             )}
 
                             <div className="space-y-6">

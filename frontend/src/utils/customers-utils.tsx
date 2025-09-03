@@ -1,8 +1,6 @@
 // Utility functions and configurations for Customers page
 // Path: frontend/src/utils/customers-utils.ts
 
-import { Customer, Commission, Transaction } from "@/src/data/customers-mock-data"
-
 export interface TableColumn {
     key: string
     header: string

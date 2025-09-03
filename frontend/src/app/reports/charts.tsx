@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Area, AreaChart } from 'recharts';
 import { Calendar, Download, Filter, TrendingUp, Users, DollarSign, Activity, ArrowUpRight, ArrowDownRight, BarChart3 } from 'lucide-react';
+import {Input} from "@/components/ui/input";
 
 interface AffiliateGroup {
     id: string;
@@ -179,6 +180,20 @@ const Reports = () => {
                         channels</p>
                 </div>
                 <div className="flex items-center space-x-3">
+                    <div className="flex items-center gap-2">
+                        <Input
+                            type="date"
+                            placeholder="Commission Start"
+                            className="w-40"
+                        />
+                        <span className="text-muted-foreground">to</span>
+                        <Input
+                            type="date"
+                            placeholder="Commission End"
+                            className="w-40"
+                        />
+                    </div>
+
                     <select
                         value={selectedPeriod}
                         onChange={(e) => setSelectedPeriod(e.target.value)}

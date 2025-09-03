@@ -3,12 +3,11 @@
 import { useState } from "react"
 import { MedicalSidebar } from "@/components/medical-sidebar"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Card,
-  CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { X, Plus, Eye, MoreHorizontal } from "lucide-react"
-import ProgramSettingsHeader from "@/src/headers/programSettingsHeader";
+import { Card, CardContent } from "@/components/ui/card"
+import { X, Plus } from "lucide-react"
+import ProgramSettingsHeader from "@/src/headers/programSettingsHeader"
+import FlowCard from "@/src/app/flows/flow-card"
+import InfoBanner from "@/src/utils/InfoBanner";
 
 interface Flow {
   id: number
@@ -74,74 +73,29 @@ export default function FlowsPage() {
             <div className="container mx-auto px-6 py-8">
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-3xl font-bold tracking-tight">Flows</h1>
+                <div className="flex gap-2">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2"/>
+                    Create Flow
+                  </Button>
+                </div>
               </div>
-              {showInfoBanner && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
-                    <button
-                        onClick={() => setShowInfoBanner(false)}
-                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="h-4 w-4"/>
-                    </button>
-                    <h3 className="font-semibold mb-2">What are flows?</h3>
-                    <p className="text-sm text-gray-700">
-                      Flows enable you to set and adjust commission rates for your partners using automated rules. For
-                      example, you can assign a 20% commission for the Starter plan and 15% for the Pro plan, giving you
-                      more flexibility in managing commissions. You can even set different rates for individual partners
-                      or groups.
-                      <a href="#" className="text-blue-600 hover:underline ml-1">Learn more.</a>
-                    </p>
-                  </div>
-              )}
+              <InfoBanner
+                  description="Flows enable you to set and adjust commission rates for your partners using automated rules."
+                  show={showInfoBanner}
+                  onClose={() => setShowInfoBanner(false)}
+              />
 
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-medium mb-4">All created flows</h2>
-
                   <div className="space-y-4">
                     {flows.map((flow) => (
-                        <Card key={flow.id} className="transition-all hover:shadow-sm">
-                          <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <h3 className="font-medium text-lg">{flow.name}</h3>
-                                  {flow.isDefault && (
-                                      <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
-                                        Default
-                                      </Badge>
-                                  )}
-                                </div>
-
-                                <p className="text-muted-foreground mb-3">
-                                  {flow.description}
-                                </p>
-
-                                <p className="text-sm text-muted-foreground">
-                                  Default | {flow.dateCreated}
-                                </p>
-                              </div>
-
-                              <div className="flex items-center gap-3 ml-6">
-                                <div className="flex items-center gap-2">
-                                  <Switch
-                                      checked={flowStates[flow.id]}
-                                      onCheckedChange={() => toggleFlow(flow.id)}
-                                      className="data-[state=checked]:bg-black"
-                                  />
-                                </div>
-
-                                <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
-                                  <Eye className="h-4 w-4"/>
-                                </Button>
-
-                                <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
-                                  <MoreHorizontal className="h-4 w-4"/>
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                        <FlowCard
+                            key={flow.id}
+                            flow={flow}
+                            isActive={flowStates[flow.id]}
+                            onToggle={toggleFlow}
+                        />
                     ))}
                   </div>
 

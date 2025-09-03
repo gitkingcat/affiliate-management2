@@ -412,7 +412,7 @@ const PartnerGroups = () => {
 
             {/* Add Group Modal */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/15 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Group</h3>
 
@@ -424,7 +424,7 @@ const PartnerGroups = () => {
                                 <input
                                     type="text"
                                     value={formData.name}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                    onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="Enter group name"
                                 />
@@ -436,7 +436,7 @@ const PartnerGroups = () => {
                                 </label>
                                 <textarea
                                     value={formData.description}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                                    onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
                                     rows={3}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="Optional description"
@@ -448,7 +448,7 @@ const PartnerGroups = () => {
                             <button
                                 onClick={() => {
                                     setShowAddModal(false);
-                                    setFormData({ name: '', description: '' });
+                                    setFormData({name: '', description: ''});
                                 }}
                                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
                             >
@@ -467,7 +467,7 @@ const PartnerGroups = () => {
 
             {/* Edit Group Modal */}
             {showEditModal && selectedGroup && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/15 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Group</h3>
 
@@ -521,7 +521,7 @@ const PartnerGroups = () => {
 
             {/* View Members Modal */}
             {showMembersModal && selectedGroup && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/15 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-gray-900">
@@ -570,7 +570,7 @@ const PartnerGroups = () => {
 
             {/* Delete Confirmation Modal */}
             {showDeleteModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/15 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                         <div className="flex items-center mb-4">
                             <AlertTriangle className="w-6 h-6 text-red-500 mr-3" />
