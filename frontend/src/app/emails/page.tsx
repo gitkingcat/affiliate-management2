@@ -5,6 +5,7 @@ import { MedicalSidebar } from "@/components/medical-sidebar"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
+import ProgramSettingsHeader from "@/src/headers/programSettingsHeader";
 
 interface EmailSetting {
   id: string
@@ -81,18 +82,10 @@ export default function EmailsPage() {
 
   return (
       <div className="flex h-screen bg-background">
-        <MedicalSidebar />
+        <MedicalSidebar/>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between p-6 border-b border-border">
-            <div className="flex items-center gap-4">
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                Send one-off email
-              </Button>
-            </div>
-          </header>
+          <ProgramSettingsHeader/>
 
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">

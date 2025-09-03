@@ -8,6 +8,7 @@ import PartnerExperience from "@/src/app/program-settings/partnerExperience";
 import MarketingAndTracking from "@/src/app/program-settings/marketingAndTracking";
 import PartnerGroups from "@/src/app/program-settings/partnerGroups";
 import CustomDomains from "@/src/app/program-settings/customDomains";
+import ProgramSettingsHeader from "@/src/headers/programSettingsHeader";
 
 export default function ProgramSettingsPage() {
   const [activeTab, setActiveTab] = useState("general")
@@ -38,14 +39,10 @@ export default function ProgramSettingsPage() {
 
   return (
       <div className="flex h-screen bg-background">
-        <MedicalSidebar />
+        <MedicalSidebar/>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between p-6 border-b border-border">
-            <div className="flex items-center gap-4">
-            </div>
-          </header>
-
+          <ProgramSettingsHeader/>
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">
               <div className="flex items-center justify-between mb-6">

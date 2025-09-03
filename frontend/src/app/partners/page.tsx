@@ -7,18 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from 'next/navigation';
+import Header from "@/src/headers/header";
+
 
 import {
-  Search,
-  Bell,
-  Mail,
-  Plus,
   Filter,
   Download,
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
-  Users
+  Users, Plus, UserPlus
 } from "lucide-react";
 import {
   Table,
@@ -41,6 +39,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+interface FilterState {
+  partnerName: string
+  email: string
+  status: string
+  commissionStart: string
+  commissionEnd: string
+}
 
 interface Affiliate {
   id: number;
@@ -77,10 +83,10 @@ export default function PartnersPage() {
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("")
   const [totalElements, setTotalElements] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(null);
@@ -88,6 +94,14 @@ export default function PartnersPage() {
   const clientId = 1;
 
   const router = useRouter();
+
+  const [filters, setFilters] = useState<FilterState>({
+    partnerName: "",
+    email: "",
+    status: "",
+    commissionStart: "",
+    commissionEnd: ""
+  })
 
   useEffect(() => {
     fetchAffiliates();
@@ -109,9 +123,6 @@ export default function PartnersPage() {
         params.append('status', statusFilter);
       }
 
-      if (searchQuery) {
-        params.append('search', searchQuery);
-      }
 
       const url = `http://localhost:8080/api/v1/affiliates/table?${params}`;
 
@@ -167,10 +178,19 @@ export default function PartnersPage() {
     }
   };
 
-  const handleSearch = () => {
-    setCurrentPage(0);
-    fetchAffiliates();
-  };
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }))
+    setCurrentPage(0)
+  }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    if (query.includes('@')) {
+      handleFilterChange('email', query)
+    } else {
+      handleFilterChange('partnerName', query)
+    }
+  }
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -209,232 +229,205 @@ export default function PartnersPage() {
   };
 
   return (
-      <div className="flex min-h-screen bg-background">
-        <MedicalSidebar />
+      <div className="flex h-screen bg-background">
+        <MedicalSidebar/>
 
-        <div className="flex-1 flex flex-col">
-          <header className="bg-card border-b border-border px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-foreground">Partners</h1>
-                <Badge variant="secondary" className="bg-muted">
-                  {totalElements || 0} Total
-                </Badge>
-                {statusCounts && (
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header
+              searchQuery={searchQuery}
+              filters={filters}
+              onSearchChange={handleSearch}
+              onFilterChange={handleFilterChange}
+          />
+
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
+            <div className="container mx-auto px-6 py-8">
+
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold tracking-tight">Partners</h1>
+
+                <div className="flex gap-2">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2"/>
+                    Create partner
+                  </Button>
+                  <Button variant="outline">
+                    <UserPlus className="h-4 w-4 mr-2"/>
+                    Invite partner
+                  </Button>
+                </div>
+              </div>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Affiliate Partners</CardTitle>
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-green-100 text-green-800">
-                        {statusCounts.active} Active
-                      </Badge>
-                      <Badge className="bg-yellow-100 text-yellow-800">
-                        {statusCounts.pending} Pending
-                      </Badge>
-                      {statusCounts.inactive > 0 && (
-                          <Badge className="bg-gray-100 text-gray-800">
-                            {statusCounts.inactive} Inactive
-                          </Badge>
-                      )}
-                    </div>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                      placeholder="Search affiliates..."
-                      className="pl-10 w-64"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  />
-                </div>
-                <Button onClick={handleSearch} variant="secondary">
-                  Search
-                </Button>
-                <Button onClick={() => router.push('/partners/add')}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Partner
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <Mail className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </header>
-
-          <main className="flex-1 p-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Affiliate Partners</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Select
-                        value={statusFilter}
-                        onValueChange={(value) => {
-                          setStatusFilter(value);
-                          setCurrentPage(0);
-                        }}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ALL">All Status</SelectItem>
-                        <SelectItem value="ACTIVE">Active</SelectItem>
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="INVITED">Invited</SelectItem>
-                        <SelectItem value="INACTIVE">Inactive</SelectItem>
-                        <SelectItem value="SUSPENDED">Suspended</SelectItem>
-                        <SelectItem value="REJECTED">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline" size="sm">
-                      <Filter className="w-4 h-4 mr-2" />
-                      More Filters
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Export
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {error && (
-                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-red-600">Error: {error}</p>
-                      <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={fetchAffiliates}
-                          className="mt-2"
+                      <Select
+                          value={statusFilter}
+                          onValueChange={(value) => {
+                            setStatusFilter(value);
+                            setCurrentPage(0);
+                          }}
                       >
-                        Retry
+                        <SelectTrigger className="w-32">
+                          <SelectValue placeholder="Filter by status"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL">All Status</SelectItem>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="PENDING">Pending</SelectItem>
+                          <SelectItem value="INVITED">Invited</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                          <SelectItem value="REJECTED">Rejected</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="sm">
+                        <Filter className="w-4 h-4 mr-2"/>
+                        More Filters
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-2"/>
+                        Export
                       </Button>
                     </div>
-                )}
-
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Revenue</TableHead>
-                        <TableHead>Earnings</TableHead>
-                        <TableHead>Clicks</TableHead>
-                        <TableHead>Leads</TableHead>
-                        <TableHead>Customers</TableHead>
-                        <TableHead>Joined</TableHead>
-                        <TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {loading ? (
-                          <TableRow>
-                            <TableCell colSpan={10} className="text-center py-8">
-                              <div className="flex items-center justify-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                      ) : !affiliates || affiliates.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={10} className="text-center py-8">
-                              <div className="flex flex-col items-center">
-                                <Users className="w-12 h-12 text-muted-foreground mb-2" />
-                                <p className="text-muted-foreground">No affiliates found</p>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                      ) : (
-                          affiliates && affiliates.map((affiliate) => (
-                              <TableRow key={affiliate.id}>
-                                <TableCell className="font-medium">
-                                  {affiliate.name}
-                                </TableCell>
-                                <TableCell>{affiliate.email}</TableCell>
-                                <TableCell>
-                                  <Badge className={getStatusColor(affiliate.status)}>
-                                    {affiliate.status}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>{formatCurrency(affiliate.revenue)}</TableCell>
-                                <TableCell>{formatCurrency(affiliate.earnings)}</TableCell>
-                                <TableCell>{affiliate.clicks}</TableCell>
-                                <TableCell>{affiliate.leads}</TableCell>
-                                <TableCell>{affiliate.customers}</TableCell>
-                                <TableCell>{formatDate(affiliate.signupDate)}</TableCell>
-                                <TableCell>
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="sm">
-                                        <MoreHorizontal className="w-4 h-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                                      <DropdownMenuItem>Send Message</DropdownMenuItem>
-                                      <DropdownMenuItem className="text-red-600">
-                                        Suspend
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </TableCell>
-                              </TableRow>
-                          ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {totalPages > 1 && affiliates && affiliates.length > 0 && (
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="text-sm text-muted-foreground">
-                        Showing {Math.min(currentPage * pageSize + 1, totalElements || 0)} to {Math.min((currentPage + 1) * pageSize, totalElements || 0)} of {totalElements || 0} results
-                      </div>
-                      <div className="flex items-center gap-2">
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {error && (
+                      <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-600">Error: {error}</p>
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-                            disabled={currentPage === 0}
+                            onClick={fetchAffiliates}
+                            className="mt-2"
                         >
-                          <ChevronLeft className="w-4 h-4" />
-                          Previous
+                          Retry
                         </Button>
-                        <div className="flex items-center gap-1">
-                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => (
-                              <Button
-                                  key={i}
-                                  variant={currentPage === i ? "default" : "outline"}
-                                  size="sm"
-                                  onClick={() => setCurrentPage(i)}
-                                  className="w-8"
-                              >
-                                {i + 1}
-                              </Button>
-                          ))}
-                          {totalPages > 5 && <span className="px-2">...</span>}
+                      </div>
+                  )}
+
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Revenue</TableHead>
+                          <TableHead>Earnings</TableHead>
+                          <TableHead>Clicks</TableHead>
+                          <TableHead>Leads</TableHead>
+                          <TableHead>Customers</TableHead>
+                          <TableHead>Joined</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {loading ? (
+                            <TableRow>
+                              <TableCell colSpan={10} className="text-center py-8">
+                                <div className="flex items-center justify-center">
+                                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                        ) : !affiliates || affiliates.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={10} className="text-center py-8">
+                                <div className="flex flex-col items-center">
+                                  <Users className="w-12 h-12 text-muted-foreground mb-2"/>
+                                  <p className="text-muted-foreground">No affiliates found</p>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                        ) : (
+                            affiliates && affiliates.map((affiliate) => (
+                                <TableRow key={affiliate.id}>
+                                  <TableCell className="font-medium">
+                                    {affiliate.name}
+                                  </TableCell>
+                                  <TableCell>{affiliate.email}</TableCell>
+                                  <TableCell>
+                                    <Badge className={getStatusColor(affiliate.status)}>
+                                      {affiliate.status}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>{formatCurrency(affiliate.revenue)}</TableCell>
+                                  <TableCell>{formatCurrency(affiliate.earnings)}</TableCell>
+                                  <TableCell>{affiliate.clicks}</TableCell>
+                                  <TableCell>{affiliate.leads}</TableCell>
+                                  <TableCell>{affiliate.customers}</TableCell>
+                                  <TableCell>{formatDate(affiliate.signupDate)}</TableCell>
+                                  <TableCell>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="sm">
+                                          <MoreHorizontal className="w-4 h-4"/>
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                        <DropdownMenuItem>Send Message</DropdownMenuItem>
+                                        <DropdownMenuItem className="text-red-600">
+                                          Suspend
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {totalPages > 1 && affiliates && affiliates.length > 0 && (
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="text-sm text-muted-foreground">
+                          Showing {Math.min(currentPage * pageSize + 1, totalElements || 0)} to {Math.min((currentPage + 1) * pageSize, totalElements || 0)} of {totalElements || 0} results
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-                            disabled={currentPage === totalPages - 1}
-                        >
-                          Next
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                              disabled={currentPage === 0}
+                          >
+                            <ChevronLeft className="w-4 h-4"/>
+                            Previous
+                          </Button>
+                          <div className="flex items-center gap-1">
+                            {Array.from({length: Math.min(5, totalPages)}, (_, i) => (
+                                <Button
+                                    key={i}
+                                    variant={currentPage === i ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setCurrentPage(i)}
+                                    className="w-8"
+                                >
+                                  {i + 1}
+                                </Button>
+                            ))}
+                            {totalPages > 5 && <span className="px-2">...</span>}
+                          </div>
+                          <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                              disabled={currentPage === totalPages - 1}
+                          >
+                            Next
+                            <ChevronRight className="w-4 h-4"/>
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </main>
         </div>
       </div>

@@ -170,12 +170,13 @@ const Reports = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Affiliate Reports</h1>
-                    <p className="text-gray-600 mt-2">Comprehensive analytics across all affiliate groups and marketing channels</p>
+                    <p className="text-gray-600 mt-2">Comprehensive analytics across all affiliate groups and marketing
+                        channels</p>
                 </div>
                 <div className="flex items-center space-x-3">
                     <select
@@ -188,8 +189,9 @@ const Reports = () => {
                         <option value="90d">Last 90 days</option>
                         <option value="1y">Last year</option>
                     </select>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center space-x-2">
-                        <Download className="w-4 h-4" />
+                    <button
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center space-x-2">
+                        <Download className="w-4 h-4"/>
                         <span>Export</span>
                     </button>
                 </div>
@@ -203,12 +205,12 @@ const Reports = () => {
                             <p className="text-sm text-gray-600">Total Revenue</p>
                             <p className="text-2xl font-bold text-gray-900">{formatCurrency(metrics.totalRevenue)}</p>
                             <div className="flex items-center mt-1">
-                                <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
+                                <ArrowUpRight className="w-4 h-4 text-green-500 mr-1"/>
                                 <span className="text-sm text-green-600">{metrics.growth}%</span>
                             </div>
                         </div>
                         <div className="p-3 bg-green-100 rounded-lg">
-                            <DollarSign className="w-6 h-6 text-green-600" />
+                            <DollarSign className="w-6 h-6 text-green-600"/>
                         </div>
                     </div>
                 </div>
@@ -219,12 +221,12 @@ const Reports = () => {
                             <p className="text-sm text-gray-600">Total Clicks</p>
                             <p className="text-2xl font-bold text-gray-900">{formatNumber(metrics.totalClicks)}</p>
                             <div className="flex items-center mt-1">
-                                <ArrowUpRight className="w-4 h-4 text-blue-500 mr-1" />
+                                <ArrowUpRight className="w-4 h-4 text-blue-500 mr-1"/>
                                 <span className="text-sm text-blue-600">8.2%</span>
                             </div>
                         </div>
                         <div className="p-3 bg-blue-100 rounded-lg">
-                            <Activity className="w-6 h-6 text-blue-600" />
+                            <Activity className="w-6 h-6 text-blue-600"/>
                         </div>
                     </div>
                 </div>
@@ -235,12 +237,12 @@ const Reports = () => {
                             <p className="text-sm text-gray-600">Conversions</p>
                             <p className="text-2xl font-bold text-gray-900">{formatNumber(metrics.totalConversions)}</p>
                             <div className="flex items-center mt-1">
-                                <ArrowUpRight className="w-4 h-4 text-purple-500 mr-1" />
+                                <ArrowUpRight className="w-4 h-4 text-purple-500 mr-1"/>
                                 <span className="text-sm text-purple-600">15.3%</span>
                             </div>
                         </div>
                         <div className="p-3 bg-purple-100 rounded-lg">
-                            <TrendingUp className="w-6 h-6 text-purple-600" />
+                            <TrendingUp className="w-6 h-6 text-purple-600"/>
                         </div>
                     </div>
                 </div>
@@ -251,12 +253,12 @@ const Reports = () => {
                             <p className="text-sm text-gray-600">Conversion Rate</p>
                             <p className="text-2xl font-bold text-gray-900">{metrics.averageConversionRate.toFixed(1)}%</p>
                             <div className="flex items-center mt-1">
-                                <ArrowDownRight className="w-4 h-4 text-red-500 mr-1" />
+                                <ArrowDownRight className="w-4 h-4 text-red-500 mr-1"/>
                                 <span className="text-sm text-red-600">2.1%</span>
                             </div>
                         </div>
                         <div className="p-3 bg-orange-100 rounded-lg">
-                            <BarChart3 className="w-6 h-6 text-orange-600" />
+                            <BarChart3 className="w-6 h-6 text-orange-600"/>
                         </div>
                     </div>
                 </div>
@@ -267,12 +269,12 @@ const Reports = () => {
                             <p className="text-sm text-gray-600">Active Partners</p>
                             <p className="text-2xl font-bold text-gray-900">{formatNumber(metrics.activePartners)}</p>
                             <div className="flex items-center mt-1">
-                                <ArrowUpRight className="w-4 h-4 text-indigo-500 mr-1" />
+                                <ArrowUpRight className="w-4 h-4 text-indigo-500 mr-1"/>
                                 <span className="text-sm text-indigo-600">5.7%</span>
                             </div>
                         </div>
                         <div className="p-3 bg-indigo-100 rounded-lg">
-                            <Users className="w-6 h-6 text-indigo-600" />
+                            <Users className="w-6 h-6 text-indigo-600"/>
                         </div>
                     </div>
                 </div>
@@ -300,7 +302,7 @@ const Reports = () => {
                             <div key={group.id} className="flex items-center space-x-2">
                                 <div
                                     className="w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: group.color }}
+                                    style={{backgroundColor: group.color}}
                                 />
                                 <span className="text-sm text-gray-600">{group.name}</span>
                             </div>
@@ -319,10 +321,10 @@ const Reports = () => {
                     <p className="text-gray-600">Performance trends over the last 30 days</p>
                 </div>
 
-                <div style={{ width: '100%', height: '400px' }}>
+                <div style={{width: '100%', height: '400px'}}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <BarChart data={chartData} margin={{top: 20, right: 30, left: 20, bottom: 5}}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                             <XAxis
                                 dataKey="date"
                                 stroke="#6b7280"
@@ -374,7 +376,7 @@ const Reports = () => {
                         <p className="text-gray-600">Share of total revenue by affiliate group</p>
                     </div>
 
-                    <div style={{ width: '100%', height: '300px' }}>
+                    <div style={{width: '100%', height: '300px'}}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
@@ -387,7 +389,7 @@ const Reports = () => {
                                     dataKey="value"
                                 >
                                     {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                        <Cell key={`cell-${index}`} fill={entry.color}/>
                                     ))}
                                 </Pie>
                                 <Tooltip
@@ -409,7 +411,7 @@ const Reports = () => {
                                 <div className="flex items-center space-x-2">
                                     <div
                                         className="w-3 h-3 rounded-full"
-                                        style={{ backgroundColor: entry.color }}
+                                        style={{backgroundColor: entry.color}}
                                     />
                                     <span className="text-gray-700">{entry.name}</span>
                                 </div>
@@ -434,7 +436,7 @@ const Reports = () => {
                                 <div className="flex items-center space-x-3">
                                     <div
                                         className="w-3 h-3 rounded-full"
-                                        style={{ backgroundColor: group.color }}
+                                        style={{backgroundColor: group.color}}
                                     />
                                     <div>
                                         <div className="font-medium text-gray-900">{group.name}</div>
@@ -442,7 +444,8 @@ const Reports = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="font-medium text-gray-900">{formatCurrency(group.totalRevenue)}</div>
+                                    <div
+                                        className="font-medium text-gray-900">{formatCurrency(group.totalRevenue)}</div>
                                     <div className="text-sm text-gray-500">{group.conversionRate}% conversion rate</div>
                                 </div>
                             </div>

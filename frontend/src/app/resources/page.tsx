@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, ChevronRight, Search, Upload, FileText, MoreHorizontal } from "lucide-react"
+import ProgramSettingsHeader from "@/src/headers/programSettingsHeader";
 
 interface Resource {
   id: number
@@ -92,24 +93,10 @@ export default function ResourcesPage() {
 
   return (
       <div className="flex h-screen bg-background">
-        <MedicalSidebar />
+        <MedicalSidebar/>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between p-6 border-b border-border">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold"></h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Upload className="h-4 w-4 mr-2"/>
-                Upload file
-              </Button>
-              <Button variant="outline" size="sm">
-                <FileText className="h-4 w-4 mr-2"/>
-                Create document
-              </Button>
-            </div>
-          </header>
+          <ProgramSettingsHeader/>
 
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">

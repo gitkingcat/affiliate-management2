@@ -8,6 +8,7 @@ import { Card,
   CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { X, Plus, Eye, MoreHorizontal } from "lucide-react"
+import ProgramSettingsHeader from "@/src/headers/programSettingsHeader";
 
 interface Flow {
   id: number
@@ -64,18 +65,10 @@ export default function FlowsPage() {
 
   return (
       <div className="flex h-screen bg-background">
-        <MedicalSidebar />
+        <MedicalSidebar/>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between p-6 border-b border-border">
-            <div className="flex items-center gap-4">
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm">
-                Create flow
-              </Button>
-            </div>
-          </header>
+          <ProgramSettingsHeader/>
 
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">

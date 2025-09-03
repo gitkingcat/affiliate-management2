@@ -1,16 +1,34 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { MedicalSidebar } from "@/components/medical-sidebar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Search, Filter, Download, Bell, Mail, X, UserPlus, Loader2, RefreshCw, Plus, MoreHorizontal, Users } from "lucide-react"
-import { renderCellContent } from "@/src/config/customers-tab-configs"
+import {useState, useEffect, useCallback} from "react"
+import {MedicalSidebar} from "@/components/medical-sidebar"
+import {Button} from "@/components/ui/button"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
+import {Checkbox} from "@/components/ui/checkbox"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {
+    ChevronLeft,
+    ChevronRight,
+    Filter,
+    Download,
+    X,
+    Loader2,
+    RefreshCw,
+    Plus,
+    MoreHorizontal,
+    Users
+} from "lucide-react"
+import {renderCellContent} from "@/src/config/customers-tab-configs"
+import Header from "@/src/headers/header";
+
+interface FilterState {
+    partnerName: string
+    email: string
+    status: string
+    commissionStart: string
+    commissionEnd: string
+}
 
 interface ReferralCustomerDTO {
     id: number
@@ -107,15 +125,15 @@ const TAB_CONFIGS = {
         searchFields: ["customerName", "customerEmail", "clientName", "clientEmail"],
         searchPlaceholder: "Search by customer name, email, or client...",
         columns: [
-            { key: "customer", header: "Customer" },
-            { key: "client", header: "Client/Partner" },
-            { key: "totalPaid", header: "Total Paid" },
-            { key: "totalCommission", header: "Commission" },
-            { key: "status", header: "Status" },
-            { key: "lastPurchase", header: "Last Purchase" },
-            { key: "purchaseCount", header: "Purchases" },
-            { key: "source", header: "Source" },
-            { key: "actions", header: "Actions" }
+            {key: "customer", header: "Customer"},
+            {key: "client", header: "Client/Partner"},
+            {key: "totalPaid", header: "Total Paid"},
+            {key: "totalCommission", header: "Commission"},
+            {key: "status", header: "Status"},
+            {key: "lastPurchase", header: "Last Purchase"},
+            {key: "purchaseCount", header: "Purchases"},
+            {key: "source", header: "Source"},
+            {key: "actions", header: "Actions"}
         ]
     },
     commissions: {
@@ -124,16 +142,16 @@ const TAB_CONFIGS = {
         searchFields: ["affiliateName", "affiliateEmail", "customerName", "description", "type"],
         searchPlaceholder: "Search by affiliate, customer, type, or description...",
         columns: [
-            { key: "affiliate", header: "Affiliate" },
-            { key: "customer", header: "Customer" },
-            { key: "amount", header: "Amount" },
-            { key: "percentage", header: "Rate %" },
-            { key: "status", header: "Status" },
-            { key: "type", header: "Type" },
-            { key: "createdAt", header: "Created" },
-            { key: "earnedAt", header: "Earned" },
-            { key: "paidAt", header: "Paid" },
-            { key: "actions", header: "Actions" }
+            {key: "affiliate", header: "Affiliate"},
+            {key: "customer", header: "Customer"},
+            {key: "amount", header: "Amount"},
+            {key: "percentage", header: "Rate %"},
+            {key: "status", header: "Status"},
+            {key: "type", header: "Type"},
+            {key: "createdAt", header: "Created"},
+            {key: "earnedAt", header: "Earned"},
+            {key: "paidAt", header: "Paid"},
+            {key: "actions", header: "Actions"}
         ]
     },
     transactions: {
@@ -142,15 +160,15 @@ const TAB_CONFIGS = {
         searchFields: ["affiliateName", "affiliateEmail", "customerName", "transactionId"],
         searchPlaceholder: "Search by affiliate, customer, or transaction ID...",
         columns: [
-            { key: "affiliate", header: "Affiliate" },
-            { key: "customer", header: "Customer" },
-            { key: "amount", header: "Amount" },
-            { key: "paymentMethod", header: "Payment Method" },
-            { key: "status", header: "Status" },
-            { key: "transactionId", header: "Transaction ID" },
-            { key: "processedAt", header: "Processed" },
-            { key: "createdAt", header: "Created" },
-            { key: "actions", header: "Actions" }
+            {key: "affiliate", header: "Affiliate"},
+            {key: "customer", header: "Customer"},
+            {key: "amount", header: "Amount"},
+            {key: "paymentMethod", header: "Payment Method"},
+            {key: "status", header: "Status"},
+            {key: "transactionId", header: "Transaction ID"},
+            {key: "processedAt", header: "Processed"},
+            {key: "createdAt", header: "Created"},
+            {key: "actions", header: "Actions"}
         ]
     }
 }
@@ -166,14 +184,22 @@ export default function CustomersPage() {
     const [sortDirection, setSortDirection] = useState("DESC")
 
     const [tabsData, setTabsData] = useState<Record<TabType, TabData>>({
-        customers: { data: [], totalElements: 0, totalPages: 0, loading: false, error: null, loaded: false },
-        commissions: { data: [], totalElements: 0, totalPages: 0, loading: false, error: null, loaded: false },
-        transactions: { data: [], totalElements: 0, totalPages: 0, loading: false, error: null, loaded: false }
+        customers: {data: [], totalElements: 0, totalPages: 0, loading: false, error: null, loaded: false},
+        commissions: {data: [], totalElements: 0, totalPages: 0, loading: false, error: null, loaded: false},
+        transactions: {data: [], totalElements: 0, totalPages: 0, loading: false, error: null, loaded: false}
     })
 
     const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout | null>(null)
     const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(null)
     const [totalAcrossAllTabs, setTotalAcrossAllTabs] = useState(0)
+
+    const [filters, setFilters] = useState<FilterState>({
+        partnerName: "",
+        email: "",
+        status: "",
+        commissionStart: "",
+        commissionEnd: ""
+    })
 
     const fetchTabData = useCallback(async (
         tab: TabType,
@@ -212,7 +238,7 @@ export default function CustomersPage() {
 
         setTabsData(prev => ({
             ...prev,
-            [tab]: { ...prev[tab], loading: true, error: null }
+            [tab]: {...prev[tab], loading: true, error: null}
         }))
 
         try {
@@ -335,9 +361,13 @@ export default function CustomersPage() {
         setCurrentPage(0)
     }
 
-    const handleSearch = () => {
-        setCurrentPage(0)
-        loadTabData(activeTab, true)
+    const handleSearch = (query: string) => {
+        setSearchQuery(query)
+        if (query.includes('@')) {
+            handleFilterChange('email', query)
+        } else {
+            handleFilterChange('partnerName', query)
+        }
     }
 
     const formatCurrency = (amount: number): string => {
@@ -355,6 +385,11 @@ export default function CustomersPage() {
             month: 'short',
             day: 'numeric'
         })
+    }
+
+    const handleFilterChange = (key: keyof FilterState, value: string) => {
+        setFilters(prev => ({...prev, [key]: value}))
+        setCurrentPage(0)
     }
 
     const getStatusColor = (status: string): string => {
@@ -380,280 +415,244 @@ export default function CustomersPage() {
     const currentTabConfig = TAB_CONFIGS[activeTab]
 
     return (
-        <div className="flex min-h-screen bg-background">
-            <MedicalSidebar />
+        <div className="flex h-screen bg-background">
+            <MedicalSidebar/>
 
-            <div className="flex-1 flex flex-col">
-                <header className="bg-card border-b border-border px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                                <Input
-                                    placeholder={currentTabConfig.searchPlaceholder}
-                                    className="pl-10 w-64"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                    disabled={currentTabData.loading}
-                                />
-                            </div>
-                            <Button onClick={handleSearch} variant="secondary" disabled={currentTabData.loading}>
-                                Search
-                            </Button>
-                            {activeTab === 'customers' && (
-                                <Button>
-                                    <Plus className="w-4 h-4 mr-2" />
-                                    Add Customer
-                                </Button>
-                            )}
-                            <Button variant="ghost" size="sm">
-                                <Bell className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                                <Mail className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </div>
-                </header>
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <Header
+                    searchQuery={searchQuery}
+                    filters={filters}
+                    onSearchChange={handleSearch}
+                    onFilterChange={handleFilterChange}
+                />
 
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
                     <div className="container mx-auto px-6 py-8">
-                        <div className="space-y-6">
-                            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                <div>
-                                    <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button>
-                                        <Plus className="h-4 w-4 mr-2"/>
-                                        Create partner
-                                    </Button>
-                                    <Button variant="outline">
-                                        <UserPlus className="h-4 w-4 mr-2"/>
-                                        Invite partner
-                                    </Button>
-                                </div>
+                        <div className="flex items-center justify-between mb-6">
+                            <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
+                            <div className="flex gap-2">
+                                <Button>
+                                    <Plus className="h-4 w-4 mr-2"/>
+                                    Create customer
+                                </Button>
                             </div>
-                            <div className="container mx-auto px-6 py-8">
-                                {showInfoBanner && (
-                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
-                                        <button
-                                            onClick={() => setShowInfoBanner(false)}
-                                            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                                        >
-                                            <X className="h-4 w-4"/>
-                                        </button>
-                                        <h3 className="font-semibold mb-2">Customer Management Dashboard</h3>
-                                        <p className="text-sm text-gray-700">
-                                            Track your affiliate customers, commissions, and transactions all in one
-                                            place.
-                                            Switch between tabs to view different aspects of your affiliate program
-                                            performance.
-                                        </p>
-                                    </div>
-                                )}
+                        </div>
+                        <div className="space-y-6">
+                            {showInfoBanner && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 relative">
+                                    <button
+                                        onClick={() => setShowInfoBanner(false)}
+                                        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <X className="h-4 w-4"/>
+                                    </button>
+                                    <h3 className="font-semibold mb-2">Customer Management Dashboard</h3>
+                                    <p className="text-sm text-gray-700">
+                                        Track your affiliate customers, commissions, and transactions all in one
+                                        place.
+                                        Switch between tabs to view different aspects of your affiliate program
+                                        performance.
+                                    </p>
+                                </div>
+                            )}
 
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex gap-1 border-b">
-                                        {Object.values(TAB_CONFIGS).map((tab) => {
-                                            const tabData = tabsData[tab.id as TabType]
-                                            const count = tabData.loaded ? tabData.totalElements : ''
-                                            const label = count ? `${tab.label} (${count})` : tab.label
+                            <div className="space-y-6">
+                                <div className="flex gap-1 border-b">
+                                    {Object.values(TAB_CONFIGS).map((tab) => {
+                                        const tabData = tabsData[tab.id as TabType]
+                                        const count = tabData.loaded ? tabData.totalElements : ''
+                                        const label = count ? `${tab.label} (${count})` : tab.label
 
-                                            return (
-                                                <Button
-                                                    key={tab.id}
-                                                    variant={activeTab === tab.id ? "default" : "ghost"}
-                                                    size="sm"
-                                                    onClick={() => handleTabChange(tab.id as TabType)}
-                                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
-                                                    disabled={tabData.loading}
-                                                >
-                                                    {label}
-                                                    {tabData.loading && (
-                                                        <Loader2 className="inline h-3 w-3 ml-2 animate-spin"/>
-                                                    )}
+                                        return (
+                                            <Button
+                                                key={tab.id}
+                                                variant={activeTab === tab.id ? "default" : "ghost"}
+                                                size="sm"
+                                                onClick={() => handleTabChange(tab.id as TabType)}
+                                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+                                                disabled={tabData.loading}
+                                            >
+                                                {label}
+                                                {tabData.loading && (
+                                                    <Loader2 className="inline h-3 w-3 ml-2 animate-spin"/>
+                                                )}
+                                            </Button>
+                                        )
+                                    })}
+                                </div>
+
+                                <Card>
+                                    <CardHeader className="pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-lg font-medium">
+                                            </CardTitle>
+                                            <div className="flex items-center gap-2">
+                                                <Button variant="outline" size="sm"
+                                                        disabled={currentTabData.loading}>
+                                                    <Filter className="w-4 h-4 mr-2"/>
+                                                    More Filters
                                                 </Button>
-                                            )
-                                        })}
-                                    </div>
-
-                                    <Card>
-                                        <CardHeader className="pb-4">
-                                            <div className="flex items-center justify-between">
-                                                <CardTitle className="text-lg font-medium">
-                                                </CardTitle>
-                                                <div className="flex items-center gap-2">
-                                                    <Button variant="outline" size="sm"
-                                                            disabled={currentTabData.loading}>
-                                                        <Filter className="w-4 h-4 mr-2"/>
-                                                        More Filters
-                                                    </Button>
-                                                    <Button variant="outline" size="sm"
-                                                            disabled={currentTabData.loading}>
-                                                        <Download className="w-4 w-4 mr-2"/>
-                                                        Export
-                                                    </Button>
-                                                </div>
+                                                <Button variant="outline" size="sm"
+                                                        disabled={currentTabData.loading}>
+                                                    <Download className="w-4 w-4 mr-2"/>
+                                                    Export
+                                                </Button>
                                             </div>
-                                        </CardHeader>
+                                        </div>
+                                    </CardHeader>
 
-                                        <CardContent>
-                                            {currentTabData.error && (
-                                                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                                    <p className="text-red-600">Error: {currentTabData.error}</p>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={handleRetry}
-                                                        className="mt-2"
-                                                    >
-                                                        <RefreshCw className="h-4 w-4 mr-2"/>
-                                                        Retry
-                                                    </Button>
-                                                </div>
-                                            )}
+                                    <CardContent>
+                                        {currentTabData.error && (
+                                            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                                <p className="text-red-600">Error: {currentTabData.error}</p>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleRetry}
+                                                    className="mt-2"
+                                                >
+                                                    <RefreshCw className="h-4 w-4 mr-2"/>
+                                                    Retry
+                                                </Button>
+                                            </div>
+                                        )}
 
-                                            <div className="rounded-md border bg-background">
-                                                <Table className="bg-transparent">
-                                                    <TableHeader className="bg-transparent">
-                                                        <TableRow className="bg-transparent hover:bg-transparent">
-                                                            <TableHead className="w-12">
-                                                                <Checkbox
-                                                                    checked={selectedItems.length === currentTabData.data.length && currentTabData.data.length > 0}
-                                                                    onCheckedChange={handleSelectAll}
-                                                                    disabled={currentTabData.loading || currentTabData.data.length === 0}
-                                                                />
-                                                            </TableHead>
-                                                            {currentTabConfig.columns.map((column) => (
-                                                                <TableHead
-                                                                    key={column.key}
-                                                                    className={`cursor-pointer hover:text-foreground ${column.key === sortBy ? 'text-foreground' : 'text-muted-foreground'}`}
-                                                                    onClick={() => handleSortChange(column.key)}
-                                                                >
-                                                                    {column.header}
-                                                                    {column.key === sortBy && (
-                                                                        <span className="ml-1">
+                                        <div className="rounded-md border bg-background">
+                                            <Table className="bg-transparent">
+                                                <TableHeader className="bg-transparent">
+                                                    <TableRow className="bg-transparent hover:bg-transparent">
+                                                        <TableHead className="w-12">
+                                                            <Checkbox
+                                                                checked={selectedItems.length === currentTabData.data.length && currentTabData.data.length > 0}
+                                                                onCheckedChange={handleSelectAll}
+                                                                disabled={currentTabData.loading || currentTabData.data.length === 0}
+                                                            />
+                                                        </TableHead>
+                                                        {currentTabConfig.columns.map((column) => (
+                                                            <TableHead
+                                                                key={column.key}
+                                                                className={`cursor-pointer hover:text-foreground ${column.key === sortBy ? 'text-foreground' : 'text-muted-foreground'}`}
+                                                                onClick={() => handleSortChange(column.key)}
+                                                            >
+                                                                {column.header}
+                                                                {column.key === sortBy && (
+                                                                    <span className="ml-1">
                                                                 {sortDirection === 'ASC' ? '↑' : '↓'}
                                                             </span>
-                                                                    )}
-                                                                </TableHead>
-                                                            ))}
-                                                            <TableHead></TableHead>
+                                                                )}
+                                                            </TableHead>
+                                                        ))}
+                                                        <TableHead></TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody className="bg-transparent">
+                                                    {currentTabData.loading ? (
+                                                        <TableRow className="bg-transparent hover:bg-transparent">
+                                                            <TableCell colSpan={currentTabConfig.columns.length + 2}
+                                                                       className="text-center py-8 bg-transparent">
+                                                                <div className="flex items-center justify-center">
+                                                                    <div
+                                                                        className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                                                                    <span>Loading {currentTabConfig.label.toLowerCase()}...</span>
+                                                                </div>
+                                                            </TableCell>
                                                         </TableRow>
-                                                    </TableHeader>
-                                                    <TableBody className="bg-transparent">
-                                                        {currentTabData.loading ? (
-                                                            <TableRow className="bg-transparent hover:bg-transparent">
-                                                                <TableCell colSpan={currentTabConfig.columns.length + 2}
-                                                                           className="text-center py-8 bg-transparent">
-                                                                    <div className="flex items-center justify-center">
-                                                                        <div
-                                                                            className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
-                                                                        <span>Loading {currentTabConfig.label.toLowerCase()}...</span>
-                                                                    </div>
+                                                    ) : !currentTabData.data || currentTabData.data.length === 0 ? (
+                                                        <TableRow className="bg-transparent hover:bg-transparent">
+                                                            <TableCell colSpan={currentTabConfig.columns.length + 2}
+                                                                       className="text-center py-8 bg-transparent">
+                                                                <div className="flex flex-col items-center">
+                                                                    <Users
+                                                                        className="w-12 h-12 text-muted-foreground mb-2"/>
+                                                                    <p className="text-muted-foreground">
+                                                                        {searchQuery ? 'No results found for your search.' : `No ${currentTabConfig.label.toLowerCase()} found`}
+                                                                    </p>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ) : (
+                                                        currentTabData.data.map((item: any) => (
+                                                            <TableRow key={item.id}
+                                                                      className="bg-transparent hover:bg-muted/20">
+                                                                <TableCell className="bg-transparent">
+                                                                    <Checkbox
+                                                                        checked={selectedItems.includes(item.id)}
+                                                                        onCheckedChange={() => handleSelectItem(item.id)}
+                                                                    />
                                                                 </TableCell>
-                                                            </TableRow>
-                                                        ) : !currentTabData.data || currentTabData.data.length === 0 ? (
-                                                            <TableRow className="bg-transparent hover:bg-transparent">
-                                                                <TableCell colSpan={currentTabConfig.columns.length + 2}
-                                                                           className="text-center py-8 bg-transparent">
-                                                                    <div className="flex flex-col items-center">
-                                                                        <Users
-                                                                            className="w-12 h-12 text-muted-foreground mb-2"/>
-                                                                        <p className="text-muted-foreground">
-                                                                            {searchQuery ? 'No results found for your search.' : `No ${currentTabConfig.label.toLowerCase()} found`}
-                                                                        </p>
-                                                                    </div>
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        ) : (
-                                                            currentTabData.data.map((item: any) => (
-                                                                <TableRow key={item.id}
-                                                                          className="bg-transparent hover:bg-muted/20">
-                                                                    <TableCell className="bg-transparent">
-                                                                        <Checkbox
-                                                                            checked={selectedItems.includes(item.id)}
-                                                                            onCheckedChange={() => handleSelectItem(item.id)}
-                                                                        />
+                                                                {currentTabConfig.columns.map((column) => (
+                                                                    <TableCell key={column.key}
+                                                                               className="bg-transparent">
+                                                                        {renderCellContent(item, column.key)}
                                                                     </TableCell>
-                                                                    {currentTabConfig.columns.map((column) => (
-                                                                        <TableCell key={column.key}
-                                                                                   className="bg-transparent">
-                                                                            {renderCellContent(item, column.key)}
-                                                                        </TableCell>
-                                                                    ))}
-                                                                    <TableCell className="bg-transparent">
-                                                                        <MoreHorizontal className="h-4 w-4"/>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            ))
-                                                        )}
-                                                    </TableBody>
-                                                </Table>
-                                            </div>
-
-                                            {currentTabData.data.length > 0 && (
-                                                <div className="flex items-center justify-between space-x-2 py-4">
-                                                    <div className="flex items-center space-x-2">
-                                                        <p className="text-sm font-medium">Rows per page</p>
-                                                        <Select
-                                                            value={`${rowsPerPage}`}
-                                                            onValueChange={(value) => {
-                                                                setRowsPerPage(Number(value))
-                                                                setCurrentPage(0)
-                                                            }}
-                                                        >
-                                                            <SelectTrigger className="h-8 w-[70px]">
-                                                                <SelectValue placeholder={rowsPerPage}/>
-                                                            </SelectTrigger>
-                                                            <SelectContent side="top">
-                                                                {[10, 20, 30, 40, 50].map((pageSize) => (
-                                                                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                                                                        {pageSize}
-                                                                    </SelectItem>
                                                                 ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                                <TableCell className="bg-transparent">
+                                                                    <MoreHorizontal className="h-4 w-4"/>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))
+                                                    )}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+
+                                        {currentTabData.data.length > 0 && (
+                                            <div className="flex items-center justify-between space-x-2 py-4">
+                                                <div className="flex items-center space-x-2">
+                                                    <p className="text-sm font-medium">Rows per page</p>
+                                                    <Select
+                                                        value={`${rowsPerPage}`}
+                                                        onValueChange={(value) => {
+                                                            setRowsPerPage(Number(value))
+                                                            setCurrentPage(0)
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="h-8 w-[70px]">
+                                                            <SelectValue placeholder={rowsPerPage}/>
+                                                        </SelectTrigger>
+                                                        <SelectContent side="top">
+                                                            {[10, 20, 30, 40, 50].map((pageSize) => (
+                                                                <SelectItem key={pageSize} value={`${pageSize}`}>
+                                                                    {pageSize}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="flex items-center space-x-6 lg:space-x-8">
+                                                    <div className="flex items-center space-x-2">
+                                                        <p className="text-sm font-medium">
+                                                            Page {currentPage + 1} of {currentTabData.totalPages || 1}
+                                                        </p>
                                                     </div>
-                                                    <div className="flex items-center space-x-6 lg:space-x-8">
-                                                        <div className="flex items-center space-x-2">
-                                                            <p className="text-sm font-medium">
-                                                                Page {currentPage + 1} of {currentTabData.totalPages || 1}
-                                                            </p>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                className="h-8 w-8 p-0"
-                                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                                disabled={currentPage === 0 || currentTabData.loading}
-                                                            >
-                                                                <ChevronLeft className="h-4 w-4"/>
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                className="h-8 w-8 p-0"
-                                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                                disabled={currentPage >= (currentTabData.totalPages - 1) || currentTabData.loading}
-                                                            >
-                                                                <ChevronRight className="h-4 w-4"/>
-                                                            </Button>
-                                                        </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            className="h-8 w-8 p-0"
+                                                            onClick={() => handlePageChange(currentPage - 1)}
+                                                            disabled={currentPage === 0 || currentTabData.loading}
+                                                        >
+                                                            <ChevronLeft className="h-4 w-4"/>
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            className="h-8 w-8 p-0"
+                                                            onClick={() => handlePageChange(currentPage + 1)}
+                                                            disabled={currentPage >= (currentTabData.totalPages - 1) || currentTabData.loading}
+                                                        >
+                                                            <ChevronRight className="h-4 w-4"/>
+                                                        </Button>
                                                     </div>
                                                 </div>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-                                </div>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </div>
                         </div>
-                        </div>
-                        </main>
+                    </div>
+                </main>
             </div>
         </div>
-)
+    )
 }

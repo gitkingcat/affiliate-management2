@@ -59,6 +59,7 @@ public class PayoutDataInitializer {
                         .phoneNumber("+1-555-0100")
                         .website("https://techcorp.com")
                         .address("123 Tech Street")
+                        .name("TechCorp Solutions")
                         .city("San Francisco")
                         .country("USA")
                         .postalCode("94105")
