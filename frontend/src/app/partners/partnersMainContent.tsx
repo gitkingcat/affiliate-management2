@@ -224,6 +224,7 @@ export function PartnersMainContent({
     }
 
     return (
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
             <div className="container mx-auto px-6 py-8">
                 <div className="flex justify-between items-center mb-6">
                     <div>
@@ -287,12 +288,22 @@ export function PartnersMainContent({
                                     </SelectContent>
                                 </Select>
                                 <Button
-                                    variant="outline"
+                                    variant={showAdvancedFilters ? "default" : "outline"}
                                     size="sm"
-                                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        console.log('Button clicked!');
+                                        console.log('More Filters clicked, current state:', showAdvancedFilters);
+                                        setShowAdvancedFilters(prev => {
+                                            console.log('Setting showAdvancedFilters from', prev, 'to', !prev);
+                                            return !prev;
+                                        });
+                                    }}
+                                    style={{ pointerEvents: 'auto', zIndex: 10 }}
                                 >
                                     <Filter className="w-4 h-4 mr-2"/>
-                                    More Filters
+                                    More Filters {showAdvancedFilters ? '▲' : '▼'}
                                 </Button>
                                 <Button variant="outline" size="sm">
                                     <Download className="w-4 h-4 mr-2"/>
@@ -587,5 +598,6 @@ export function PartnersMainContent({
                     </CardContent>
                 </Card>
             </div>
+        </main>
     )
 }

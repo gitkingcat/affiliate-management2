@@ -6,7 +6,6 @@ import { PartnersMainContent } from "@/src/app/partners/partnersMainContent";
 import { useRouter } from 'next/navigation';
 import Header from "@/src/headers/header";
 
-
 interface FilterState {
   partnerName: string
   email: string
@@ -67,11 +66,11 @@ export default function PartnersPage() {
     status: "",
     commissionStart: "",
     commissionEnd: ""
-  })
+  });
 
   useEffect(() => {
     fetchAffiliates();
-  }, [currentPage, pageSize, statusFilter]);
+  }, [currentPage, pageSize, statusFilter, filters]);
 
   const fetchAffiliates = async () => {
     try {
@@ -103,28 +102,18 @@ export default function PartnersPage() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`Failed to fetch affiliates: ${response.status} ${response.statusText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: AffiliateTableResponse = await response.json();
 
-      if (data.affiliates) {
-        setAffiliates(data.affiliates || []);
-        setTotalPages(data.totalPages || 0);
-        setTotalElements(data.totalElements || 0);
-        setStatusCounts(data.statusCounts || null);
-      } else if (Array.isArray(data)) {
-        setAffiliates(data);
-        setTotalPages(1);
-        setTotalElements(data.length);
-      } else {
-        console.error('Unexpected response format:', data);
-        setAffiliates([]);
-        setTotalPages(0);
-        setTotalElements(0);
-      }
+      setAffiliates(data.affiliates);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+      setCurrentPage(data.currentPage);
+      setPageSize(data.pageSize);
+      setStatusCounts(data.statusCounts);
+
     } catch (err) {
       console.error('Error fetching affiliates:', err);
 
@@ -140,9 +129,9 @@ export default function PartnersPage() {
   };
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-    setCurrentPage(0)
-  }
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(0);
+  };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -150,13 +139,13 @@ export default function PartnersPage() {
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
+    setSearchQuery(query);
     if (query.includes('@')) {
-      handleFilterChange('email', query)
+      handleFilterChange('email', query);
     } else {
-      handleFilterChange('partnerName', query)
+      handleFilterChange('partnerName', query);
     }
-  }
+  };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
@@ -187,26 +176,25 @@ export default function PartnersPage() {
               onSearchChange={handleSearch}
               onFilterChange={handleFilterChange}
           />
-          <main>
-            <PartnersMainContent
-                affiliates={affiliates}
-                loading={loading}
-                error={error}
-                searchQuery={searchQuery}
-                statusFilter={statusFilter}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalElements={totalElements}
-                pageSize={pageSize}
-                statusCounts={statusCounts}
-                onSearchChange={handleSearchChange}
-                onStatusFilterChange={handleStatusFilterChange}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                onRetry={fetchAffiliates}
-                onAddPartner={handleAddPartner}
-            />
-          </main>
+
+          <PartnersMainContent
+              affiliates={affiliates}
+              loading={loading}
+              error={error}
+              searchQuery={searchQuery}
+              statusFilter={statusFilter}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={pageSize}
+              statusCounts={statusCounts}
+              onSearchChange={handleSearchChange}
+              onStatusFilterChange={handleStatusFilterChange}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              onRetry={fetchAffiliates}
+              onAddPartner={handleAddPartner}
+          />
         </div>
       </div>
   );
