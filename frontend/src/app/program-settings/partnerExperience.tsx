@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Upload, Eye, EyeOff } from 'lucide-react';
+import { Settings, Upload } from 'lucide-react';
 
 const PartnerExperience = () => {
     const [activeTab, setActiveTab] = useState('login');
