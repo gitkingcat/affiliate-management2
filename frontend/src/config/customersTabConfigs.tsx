@@ -4,8 +4,8 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DollarSign, CreditCard, Calendar, MoreHorizontal, Eye, UserPlus } from "lucide-react"
-import { transactions } from "@/src/data/customers-mock-data" // Only transactions still use mock data
-import { TabConfig, formatCurrency, formatDateTime, getStatusBadge } from "@/src/utils/customers-utils"
+import { transactions } from "@/src/data/customersMockData" // Only transactions still use mock data
+import { TabConfig, formatCurrency, formatDateTime, getStatusBadge } from "@/src/utils/customersUtils"
 
 export const customersTabConfig: TabConfig = {
     id: "customers",
@@ -189,5 +189,3 @@ export const renderCellContent = (item: any, columnKey: string) => {
             return item[columnKey] || "N/A"
     }
 }
-
-export const tabConfigs = [customersTabConfig, commissionsTabConfig, transactionsTabConfig]

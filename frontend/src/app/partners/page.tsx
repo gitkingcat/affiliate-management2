@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { MedicalSidebar } from "@/components/medical-sidebar";
-import { PartnersMainContent } from "@/src/app/partners/partners-main-content";
+import { PartnersMainContent } from "@/src/app/partners/partnersMainContent";
 import { useRouter } from 'next/navigation';
 import Header from "@/src/headers/header";
 

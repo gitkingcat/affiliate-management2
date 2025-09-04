@@ -15,7 +15,7 @@ import {
     UserPlus,
     Calendar
 } from "lucide-react"
-import InfoBanner from "@/src/utils/InfoBanner";
+import InfoBanner from "@/src/utils/infoBanner";
 import {useState} from "react";
 import {Input} from "@/components/ui/input";
 

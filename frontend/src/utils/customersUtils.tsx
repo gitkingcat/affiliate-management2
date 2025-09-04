@@ -44,13 +44,3 @@ export const getStatusBadge = (status: string) => {
     }
     return statusConfig[status as keyof typeof statusConfig] || "bg-gray-100 text-gray-800 border-gray-200"
 }
-
-export const filterData = (data: any[], searchQuery: string, searchFields: string[]) => {
-    if (!searchQuery) return data
-
-    return data.filter(item =>
-        searchFields.some(field =>
-            item[field]?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    )
-}

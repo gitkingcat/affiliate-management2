@@ -19,9 +19,9 @@ import {
     MoreHorizontal,
     Users, Calendar
 } from "lucide-react"
-import {renderCellContent} from "@/src/config/customers-tab-configs"
+import {renderCellContent} from "@/src/config/customersTabConfigs"
 import Header from "@/src/headers/header";
-import InfoBanner from "@/src/utils/InfoBanner";
+import InfoBanner from "@/src/utils/infoBanner";
 import {Input} from "@/components/ui/input";
 
 interface FilterState {

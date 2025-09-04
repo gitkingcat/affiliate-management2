@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { MedicalSidebar } from "@/components/medical-sidebar"
-import { DashboardHeader } from "@/src/headers/dashboardHeader"
-import { StatsCard } from "@/components/stats-card"
-import { EarningChart } from "@/components/earning-chart"
-import { TopAffiliates } from "@/components/top-affiliates"
-import { Card, CardContent } from "@/components/ui/card"
-import { Users, UserCheck, DollarSign, TrendingUp, Activity } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { MedicalSidebar } from "@/components/medical-sidebar";
+import { DashboardHeader } from "@/src/headers/dashboardHeader";
+import { StatsCards } from "./statsCards";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {EarningChart} from "@/components/chart-area";
+import {TopAffiliates} from "@/src/app/dashboard/topAffiliates";
 
 interface DashboardStatistics {
     newAffiliatesCount: number;
@@ -30,7 +29,6 @@ export default function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [selectedPeriod, setSelectedPeriod] = useState(30);
 
-    // TODO: Get clientId from auth context or user session
     const clientId = 1;
 
     useEffect(() => {
@@ -60,29 +58,11 @@ export default function Dashboard() {
             setStatistics(data);
         } catch (err) {
             console.error('Error fetching dashboard statistics:', err);
-            setError(err instanceof Error ? err.message : 'An error occurred while fetching statistics');
+            setError(err instanceof Error ?
+                err.message : 'An error occurred while fetching statistics');
         } finally {
             setLoading(false);
         }
-    };
-
-    const formatNumber = (num: number | undefined): string => {
-        if (num === undefined || num === null) return '0';
-        return num.toLocaleString();
-    };
-
-    const formatCurrency = (amount: number | undefined): string => {
-        if (amount === undefined || amount === null) return '$0.00';
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
-    };
-
-    const calculateConversionRate = (): string => {
-        if (!statistics || statistics.totalClicks === 0) return '0%';
-        const rate = (statistics.totalConversions / statistics.totalClicks) * 100;
-        return `${rate.toFixed(1)}%`;
     };
 
     return (
@@ -95,9 +75,7 @@ export default function Dashboard() {
                     onPeriodChange={setSelectedPeriod}
                 />
 
-                {/* Main Content */}
-                <main className="flex-1 p-6 space-y-6">
-                    {/* Error Message */}
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {error && (
                         <Card className="border-red-200 bg-red-50">
                             <CardContent className="p-4">
@@ -114,78 +92,12 @@ export default function Dashboard() {
                         </Card>
                     )}
 
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <StatsCard
-                            title={`New Affiliates in last ${selectedPeriod} days`}
-                            value={loading ? "..." : formatNumber(statistics?.newAffiliatesCount)}
-                            subtitle=""
-                            icon={<Users className="w-6 h-6 text-blue-600"/>}
-                            iconBg="bg-blue-100"
-                        />
-                        <StatsCard
-                            title="Active Affiliates"
-                            value={loading ? "..." : formatNumber(statistics?.activeAffiliatesCount)}
-                            subtitle={loading ? "" : `of ${formatNumber(statistics?.totalAffiliatesCount)} total`}
-                            icon={<UserCheck className="w-6 h-6 text-purple-600"/>}
-                            iconBg="bg-purple-100"
-                        />
-                        <StatsCard
-                            title="Total Conversions"
-                            value={loading ? "..." : formatNumber(statistics?.totalConversions)}
-                            subtitle={loading ? "" : `${calculateConversionRate()} conversion rate`}
-                            icon={<TrendingUp className="w-6 h-6 text-green-600"/>}
-                            iconBg="bg-green-100"
-                        />
-                        <StatsCard
-                            title="Revenue"
-                            value={loading ? "..." : formatCurrency(statistics?.totalRevenue)}
-                            subtitle={loading ? "" :
-                                statistics?.totalConversions ?
-                                    formatCurrency(statistics.totalRevenue / statistics.totalConversions)
-                                    : "$0"}
-                            icon={<DollarSign className="w-6 h-6 text-green-600"/>}
-                            iconBg="bg-green-100"
-                        />
-                    </div>
+                    <StatsCards
+                        statistics={statistics}
+                        loading={loading}
+                        selectedPeriod={selectedPeriod}
+                    />
 
-                    {/* Additional Stats Row */}
-                    {statistics && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <StatsCard
-                                title="Total Clicks"
-                                value={formatNumber(statistics.totalClicks)}
-                                subtitle="Affiliate traffic"
-                                icon={<Activity className="w-6 h-6 text-orange-600"/>}
-                                iconBg="bg-orange-100"
-                            />
-                            <StatsCard
-                                title="Total Commissions"
-                                value={formatCurrency(statistics.totalCommissions)}
-                                subtitle="Earned by affiliates"
-                                icon={<DollarSign className="w-6 h-6 text-teal-600"/>}
-                                iconBg="bg-teal-100"
-                            />
-                            <StatsCard
-                                title="Pending Affiliates"
-                                value={formatNumber(statistics.pendingAffiliatesCount)}
-                                subtitle="Awaiting approval"
-                                icon={<Users className="w-6 h-6 text-yellow-600"/>}
-                                iconBg="bg-yellow-100"
-                            />
-                            <StatsCard
-                                title="Avg Revenue per Conversion"
-                                value={statistics.totalConversions ?
-                                    formatCurrency(statistics.totalRevenue / statistics.totalConversions)
-                                    : "$0"}
-                                subtitle="Per conversion"
-                                icon={<DollarSign className="w-6 h-6 text-teal-600"/>}
-                                iconBg="bg-teal-100"
-                            />
-                        </div>
-                    )}
-
-                    {/* Charts Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <EarningChart/>
                         <TopAffiliates/>

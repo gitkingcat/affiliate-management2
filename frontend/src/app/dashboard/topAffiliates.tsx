@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Button } from "./ui/button"
-import { Avatar, AvatarFallback } from "./ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DollarSign, Users, Target, Medal, Award, Trophy } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -59,22 +59,6 @@ export function TopAffiliates({ clientId = 1, limit = 10 }: TopAffiliatesProps) 
             setLoading(false);
         }
     };
-
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'active':
-                return 'bg-green-100 text-green-600';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-600';
-            case 'inactive':
-                return 'bg-gray-100 text-gray-600';
-            case 'rejected':
-                return 'bg-red-100 text-red-600';
-            default:
-                return 'bg-gray-100 text-gray-600';
-        }
-    };
-
     const getInitials = (name: string) => {
         return name
             .split(' ')
@@ -105,15 +89,6 @@ export function TopAffiliates({ clientId = 1, limit = 10 }: TopAffiliatesProps) 
             maximumFractionDigits: 0,
         }).format(amount);
     };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    };
-
     if (loading) {
         return (
             <Card className="bg-card border-border">

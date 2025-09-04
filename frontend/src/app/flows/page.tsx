@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X, Plus } from "lucide-react"
 import ProgramSettingsHeader from "@/src/headers/programSettingsHeader"
-import FlowCard from "@/src/app/flows/flow-card"
-import InfoBanner from "@/src/utils/InfoBanner";
+import FlowCard from "@/src/app/flows/flowCard"
+import InfoBanner from "@/src/utils/infoBanner";
 
 interface Flow {
   id: number

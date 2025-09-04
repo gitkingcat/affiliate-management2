@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Calendar, Upload } from "lucide-react"
+import { Search } from "lucide-react"
 
 interface FilterState {
     partnerName: string
@@ -20,10 +18,8 @@ interface PayoutsHeaderProps {
 
 export default function Header({
                                   searchQuery,
-                                  filters,
-                                  onSearchChange,
-                                  onFilterChange
-                              }: PayoutsHeaderProps) {
+                                   onSearchChange
+                               }: PayoutsHeaderProps) {
 
     return (
         <header className="flex items-center justify-between p-6 border-b border-border">

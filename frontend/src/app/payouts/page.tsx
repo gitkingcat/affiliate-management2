@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import {Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Upload, X} from "lucide-react"
-import InfoBanner from "@/src/utils/InfoBanner";
+import InfoBanner from "@/src/utils/infoBanner";
 import {Input} from "@/components/ui/input";
 
 interface PayoutDto {
