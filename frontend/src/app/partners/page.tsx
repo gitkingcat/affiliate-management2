@@ -176,26 +176,28 @@ export default function PartnersPage() {
               onSearchChange={handleSearch}
               onFilterChange={handleFilterChange}
           />
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background">
 
-          <PartnersMainContent
-              affiliates={affiliates}
-              loading={loading}
-              error={error}
-              searchQuery={searchQuery}
-              statusFilter={statusFilter}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalElements={totalElements}
-              pageSize={pageSize}
-              statusCounts={statusCounts}
-              onSearchChange={handleSearchChange}
-              onStatusFilterChange={handleStatusFilterChange}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              onRetry={fetchAffiliates}
-              onAddPartner={handleAddPartner}
-          />
+            <PartnersMainContent
+                affiliates={affiliates}
+                loading={loading}
+                error={error}
+                searchQuery={searchQuery}
+                statusFilter={statusFilter}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                pageSize={pageSize}
+                statusCounts={statusCounts}
+                onSearchChange={handleSearchChange}
+                onStatusFilterChange={handleStatusFilterChange}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                onRetry={fetchAffiliates}
+                onAddPartner={handleAddPartner}
+            />
+          </main>
         </div>
       </div>
-  );
+);
 }
