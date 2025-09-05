@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,9 @@ public class AffiliateService {
     private final AffiliateMapper affiliateMapper;
     private final EmailService emailService;
 
+
+    private static final String ALPHANUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final SecureRandom RANDOM = new SecureRandom();
     @Transactional
     public AffiliateDto createAffiliate(AffiliateCreateRequest createRequest) {
         validateCreateRequest(createRequest);
@@ -61,6 +65,8 @@ public class AffiliateService {
         affiliate.setUpdatedAt(LocalDateTime.now());
         affiliate.setStatus("PENDING_APPROVAL");
         affiliate.setReferralCode(generateUniqueReferralCode());
+        affiliate.setUniqueIdentifier(generate(10));
+        affiliate.setTargetUrl("www.google.com");
 
         Affiliate savedAffiliate = affiliateRepository.save(affiliate);
         log.info("Created new affiliate with ID: {} for client: {}", savedAffiliate.getId(), client.getId());
@@ -68,6 +74,14 @@ public class AffiliateService {
         emailService.sendAffiliateRegistrationNotification(savedAffiliate.getEmail(), savedAffiliate.getName());
 
         return affiliateMapper.toDto(savedAffiliate);
+    }
+
+    public static String generate(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(ALPHANUM.charAt(RANDOM.nextInt(ALPHANUM.length())));
+        }
+        return sb.toString();
     }
 
     public AffiliateDto getAffiliateById(Long affiliateId) {

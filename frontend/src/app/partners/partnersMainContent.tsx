@@ -203,7 +203,7 @@ export function PartnersMainContent({
                                 className="w-40"
                             />
                         </div>
-                        <Button>
+                        <Button onClick={onAddPartner}>
                             <Plus className="h-4 w-4 mr-2"/>
                             Create partner
                         </Button>
